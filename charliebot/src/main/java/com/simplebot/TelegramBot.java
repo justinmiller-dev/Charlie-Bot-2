@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
-    private TelegramClient telegramClient = new OkHttpTelegramClient("5893606622:AAGzkJk0lRxnKrxMz3_OI9Rjcg6iYGhBSx8");
+    private TelegramClient telegramClient = new OkHttpTelegramClient("Bot key here");
     Charmagotchi charmagotchi = new Charmagotchi(0, 50, 50, 50);
     
     String messageText;
