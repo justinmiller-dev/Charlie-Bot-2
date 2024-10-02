@@ -53,17 +53,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             chatId = getChatId(message);
             System.out.println(messageText);
 
-
-            if(charmagotchi.getHunger() == 25){
-                sendMessage("*Tummy grumble*", chatId);
-            }
-            if (charmagotchi.getHappiness() == 25) {
-                sendMessage("*Sad Noises*", chatId);                
-            }
-            if (charmagotchi.getSleepiness() == 80) {
-
-            }
-
             if (messageText.equals("/meal@charlie_the_dog_bot") && charmagotchi.getHunger() > 0){
                charmagotchi.updateHunger(-50);
                 sendMessage("OM NOM NOM!", chatId);
@@ -75,7 +64,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             }
 
 
-
             if (messageText.equals("/stats@charlie_the_dog_bot")){
                 int[] statsArray = charmagotchi.getStatsArray();
                 messageText = "Charlie's current stats are. " +"\n"
@@ -85,7 +73,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                 + "Fitness: " + statsArray[3] +"%"+ "\n";
                 sendMessage(messageText, chatId);
             }
-
 
 
             if (messageText.equals("/playball@charlie_the_dog_bot")){
