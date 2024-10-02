@@ -1,5 +1,6 @@
 package com.simplebot;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -15,7 +16,9 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
-    private TelegramClient telegramClient = new OkHttpTelegramClient("Bot key here");
+   
+    
+    private TelegramClient telegramClient = new OkHttpTelegramClient(Main.getBotToken());
     Charmagotchi charmagotchi = new Charmagotchi(0, 50, 50, 50);
     
     String messageText;
