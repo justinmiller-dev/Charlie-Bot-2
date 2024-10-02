@@ -10,6 +10,7 @@ public class Charmagotchi{
     private volatile int happiness; 
     private volatile int sleepiness;
     private volatile int exercise; 
+    private volatile boolean living;
 
     private final ScheduledExecutorService schedular = Executors.newScheduledThreadPool(1);
 
@@ -18,17 +19,18 @@ public class Charmagotchi{
         happiness = hap;
         sleepiness = sle;
         exercise = exe;
+        changeAlive(true);
         schedular.scheduleAtFixedRate(()->{
             changeHunger(5); System.out.println(hunger);
         }, 0, 10, TimeUnit.SECONDS);
         schedular.scheduleAtFixedRate(()->{
-            changeHappiness(0); System.out.println(happiness);
+            changeHappiness(-5); System.out.println(happiness);
         }, 0, 10, TimeUnit.SECONDS);
         schedular.scheduleAtFixedRate(()->{
-            changeSleepiness(0); System.out.println(sleepiness);
+            changeSleepiness(5); System.out.println(sleepiness);
         }, 0, 10, TimeUnit.SECONDS);
         schedular.scheduleAtFixedRate(()->{
-            changeExercise(0); System.out.println(exercise);
+            changeExercise(-5); System.out.println(exercise);
         }, 0, 10, TimeUnit.SECONDS);
 
     }
@@ -71,7 +73,12 @@ public class Charmagotchi{
     public int getExercise(){
         return exercise;
     }
-
+    private void changeAlive(boolean alive){
+        living = alive;
+    }
+    public boolean isAlive(){
+        return living;
+    }
 
 
     public int[] getStatsArray(){

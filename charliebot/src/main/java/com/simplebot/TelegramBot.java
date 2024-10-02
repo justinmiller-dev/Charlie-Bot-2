@@ -23,6 +23,27 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     
     String messageText;
     long chatId;
+    boolean isAwake = true;
+    
+
+    public void charmagotchiStats(){
+        while (charmagotchi.isAlive() == true) {
+            if(charmagotchi.getHunger() == 25){
+                //sendMessage("*Tummy grumble*", chatId);
+                System.out.println("test hunger");
+            }
+            if (charmagotchi.getHappiness() == 25) {
+                //sendMessage("*Sad Noises*", chatId);
+                System.out.println("test happy");                
+            }
+            if (charmagotchi.getSleepiness() == 80) {
+                System.out.println("test sleep");
+            }
+            if (charmagotchi.getExercise() == 25) {
+                System.out.println("test sleep");
+            }
+        }
+    }
     
     @Override
     public void consume(Update message) {
@@ -32,6 +53,16 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             chatId = getChatId(message);
             System.out.println(messageText);
 
+
+            if(charmagotchi.getHunger() == 25){
+                sendMessage("*Tummy grumble*", chatId);
+            }
+            if (charmagotchi.getHappiness() == 25) {
+                sendMessage("*Sad Noises*", chatId);                
+            }
+            if (charmagotchi.getSleepiness() == 80) {
+
+            }
 
             if (messageText.equals("/meal@charlie_the_dog_bot") && charmagotchi.getHunger() > 0){
                charmagotchi.updateHunger(-50);
@@ -59,7 +90,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
             if (messageText.equals("/playball@charlie_the_dog_bot")){
                 charmagotchi.updateHappiness(4);
-                charmagotchi.changeSleepiness(-7);
+                charmagotchi.changeSleepiness(7);
                 charmagotchi.updateExercise(1);
                 Random rand = new Random();
                 int randInt = rand.nextInt(2);
@@ -75,6 +106,13 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                         break;
                     default:
                         break;
+                }
+
+                if (messageText.equals("/sleep@charlie_the_dog_bot") && charmagotchi.getSleepiness() > 0){
+                    int currentSleep = charmagotchi.getSleepiness();
+                    int setSleep =- currentSleep;
+                    charmagotchi.updateSleepiness(setSleep);
+                    sendMessage("Zzzzzz", chatId);
                 }
             }
         }

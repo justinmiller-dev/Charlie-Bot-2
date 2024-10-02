@@ -34,7 +34,7 @@ public class Main {
     }
     public static String getBotToken(){
     String botToken = "";
-    Path path = Paths.get("/Users/justinmiller/Documents/GItHub/Charlie-Bot-2/charliebot/src/main/java/com/simplebot/bottoken.txt");
+    Path path = Paths.get("/Users/justinmiller/Desktop/bottoken.txt ");
     try {
             String botKey = Files.readString(path);
             System.out.println(botKey);
