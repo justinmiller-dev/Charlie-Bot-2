@@ -16,7 +16,7 @@ public class Main {
         DateTimeFormatter formattedTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         
         try {
-            String botToken = "5893606622:AAGzkJk0lRxnKrxMz3_OI9Rjcg6iYGhBSx8";
+            String botToken = "bot key here";
             @SuppressWarnings("resource")
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
             botsApplication.registerBot(botToken, new TelegramBot());
