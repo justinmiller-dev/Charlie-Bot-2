@@ -20,19 +20,7 @@ public class Charmagotchi{
         sleepiness = sle;
         exercise = exe;
         changeAlive(true);
-        schedular.scheduleAtFixedRate(()->{
-            changeHunger(5); System.out.println(hunger);
-        }, 0, 10, TimeUnit.SECONDS);
-        schedular.scheduleAtFixedRate(()->{
-            changeHappiness(-5); System.out.println(happiness);
-        }, 0, 10, TimeUnit.SECONDS);
-        schedular.scheduleAtFixedRate(()->{
-            changeSleepiness(5); System.out.println(sleepiness);
-        }, 0, 10, TimeUnit.SECONDS);
-        schedular.scheduleAtFixedRate(()->{
-            changeExercise(-5); System.out.println(exercise);
-        }, 0, 10, TimeUnit.SECONDS);
-
+        startStatsScheduler();
     }
     
     public synchronized void updateHunger(int a){
@@ -79,7 +67,20 @@ public class Charmagotchi{
     public boolean isAlive(){
         return living;
     }
-
+    public void startStatsScheduler(){
+        schedular.scheduleAtFixedRate(()->{
+            changeHunger(5); System.out.println(hunger);
+        }, 0, 1, TimeUnit.SECONDS);
+        schedular.scheduleAtFixedRate(()->{
+            changeHappiness(-5); System.out.println(happiness);
+        }, 0, 10, TimeUnit.SECONDS);
+        schedular.scheduleAtFixedRate(()->{
+            changeSleepiness(5); System.out.println(sleepiness);
+        }, 0, 10, TimeUnit.SECONDS);
+        schedular.scheduleAtFixedRate(()->{
+            changeExercise(-5); System.out.println(exercise);
+        }, 0, 10, TimeUnit.SECONDS);
+    }
 
     public int[] getStatsArray(){
         int[] stats = new int[4];

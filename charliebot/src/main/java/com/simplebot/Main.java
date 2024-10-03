@@ -15,8 +15,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  * Main
  */
 public class Main {
-
-
     
     public static void main(String[] args) {   
         LocalDateTime currTime = LocalDateTime.now();
@@ -34,7 +32,7 @@ public class Main {
     }
     public static String getBotToken(){
     String botToken = "";
-    Path path = Paths.get("/Users/justinmiller/Desktop/bottoken.txt ");
+    Path path = Paths.get("/Users/justinmiller/Desktop/bottoken.txt");
     try {
             String botKey = Files.readString(path);
             System.out.println(botKey);

@@ -16,38 +16,17 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
-   
-    
-    private TelegramClient telegramClient = new OkHttpTelegramClient(Main.getBotToken());
-    Charmagotchi charmagotchi = new Charmagotchi(0, 50, 50, 50);
-    
     String messageText;
     long chatId;
     boolean isAwake = true;
     
-
-    public void charmagotchiStats(){
-        while (charmagotchi.isAlive() == true) {
-            if(charmagotchi.getHunger() == 25){
-                //sendMessage("*Tummy grumble*", chatId);
-                System.out.println("test hunger");
-            }
-            if (charmagotchi.getHappiness() == 25) {
-                //sendMessage("*Sad Noises*", chatId);
-                System.out.println("test happy");                
-            }
-            if (charmagotchi.getSleepiness() == 80) {
-                System.out.println("test sleep");
-            }
-            if (charmagotchi.getExercise() == 25) {
-                System.out.println("test sleep");
-            }
-        }
-    }
+    private TelegramClient telegramClient = new OkHttpTelegramClient(Main.getBotToken());
+    Charmagotchi charmagotchi = new Charmagotchi(0, 50, 50, 50);
+    
     
     @Override
     public void consume(Update message) {
-        
+
         if (message.hasMessage() && message.getMessage().hasText()){
             messageText = getMessageText(message).toLowerCase();
             chatId = getChatId(message);
@@ -94,24 +73,17 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                     default:
                         break;
                 }
+            }
 
-                if (messageText.equals("/sleep@charlie_the_dog_bot") && charmagotchi.getSleepiness() > 0){
+            if (messageText.equals("/sleep@charlie_the_dog_bot")){
                     int currentSleep = charmagotchi.getSleepiness();
                     int setSleep =- currentSleep;
                     charmagotchi.updateSleepiness(setSleep);
                     sendMessage("Zzzzzz", chatId);
-                }
-            }
+                }    
+            
         }
     }  
-        
-    
-    
-  
-
-
-
-
 
     public long getChatId(Update message){
         long chatId = message.getMessage().getChatId();
@@ -136,7 +108,8 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-    }
+    } 
 }
+
 
     
