@@ -1,6 +1,7 @@
 package com.simplebot;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,11 +18,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class Main {
     
     public static void main(String[] args) {   
-        LocalDateTime currTime = LocalDateTime.now();
-        DateTimeFormatter formattedTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        //LocalDateTime currTime = LocalDateTime.now();
+        //DateTimeFormatter formattedTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
         String botToken = getBotToken();
-        
+
+
         try {
             @SuppressWarnings("resource")
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
@@ -32,7 +34,7 @@ public class Main {
     }
     public static String getBotToken(){
     String botToken = "";
-    Path path = Paths.get("/Users/justinmiller/Desktop/bottoken.txt");
+    Path path = Path.of("C:/Users/justin/Desktop/bottoken.txt");
     try {
             String botKey = Files.readString(path);
             System.out.println(botKey);
