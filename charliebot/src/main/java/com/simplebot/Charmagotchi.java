@@ -86,7 +86,7 @@ class Charmagotchi extends TelegramBot{
     }
     public void startStatsScheduler(long chatId){
         scheduler.scheduleAtFixedRate(()->{
-            changeHunger(50); System.out.println(hunger);
+            changeHunger(10); System.out.println(hunger);
             System.out.println(chatId);
             if (getHunger() >= 100){
                 sendMessage("Charlie has starved to death. I hope you're happy >:(",chatId);
@@ -94,7 +94,7 @@ class Charmagotchi extends TelegramBot{
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 8, TimeUnit.HOURS);
+        }, 0, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
             changeHappiness(-5); System.out.println(happiness);
             if (getHappiness() <= 0){
@@ -103,7 +103,7 @@ class Charmagotchi extends TelegramBot{
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
             changeSleepiness(5); System.out.println(sleepiness);
             if (getSleepiness() >= 100){
@@ -112,16 +112,16 @@ class Charmagotchi extends TelegramBot{
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeExercise(-5); System.out.println(exercise);
+            changeExercise(-1); System.out.println(exercise);
             if (getExercise() <= 0){
                 sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.MINUTES);
     }
     public int[] getStatsArray(){
         int[] stats = new int[4];
@@ -139,8 +139,7 @@ class Charmagotchi extends TelegramBot{
     }
     private int getRandomInt(int a, int b){
        Random rand = new Random();
-       int randInt = rand.nextInt(a,b);
-       return randInt;
+        return rand.nextInt(a,b);
     }
     public void playBall(){
 
@@ -163,24 +162,86 @@ class Charmagotchi extends TelegramBot{
                 break;
             case 1:
                 sendMessage("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back",botChatId);
+                break;
         }
 
 
     }
     public void goForWalk(){
+        int[] stats = getStatsArray();
+        if (stats[3]<100){
+            int a = getRandomInt(5,30);
+            updateExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
+        }
+        if (stats[1]<100){
+            int a = getRandomInt(7,20);
+            updateHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
+        }
+        if (stats[2]<100){
+            int a = getRandomInt(0,5);
+            updateSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
+        }
+        switch (getRandomInt(0,2)){
+            case 0:
+                sendMessage("You go for a walk around the park. Charlie sees a squirrel and chases it up a tree.",botChatId);
+                break;
+            case 1:
+                sendMessage("You go for a walk around town. Charlie makes a new friend.",botChatId);
+                break;
+            case 2:
+                sendMessage("You go for a walk around the park. It's fun but uneventful.",botChatId);
+                break;
+        }
+
 
     }
     public void feedMeal(){
-
+        int curHung = getHunger();
+        int upHung =- curHung;
+        updateHunger(upHung);
+        updateHappiness(7);
+        sendMessage("Charlie feels well fed.",botChatId);
+        switch (getRandomInt(0,2)){
+            case 0:
+                sendMessage("OM NOM NOM!",botChatId);
+                break;
+            case 1:
+                sendMessage("MUNCH! CRUNCH! MUNCH!",botChatId);
+                break;
+            case 2:
+                sendMessage("NOM NOM NOM",botChatId);
+                break;
+        }
     }
     public void giveTreat(){
-
+        updateHunger(-1);
+        updateHappiness(10);
+        sendMessage("Happy Munches",botChatId);
     }
     public void sendToBed() {
-
+        int curSleep = getSleepiness();
+        int upSleep =- curSleep;
+        updateSleepiness(upSleep);
+       sendMessage("Charlie is feeling refreshed",botChatId);
     }
     public void speak(){
-
+        switch (getRandomInt(0,2)){
+            case 0:
+                sendMessage("*Woof*",botChatId);
+                break;
+            case 1:
+                sendMessage("*Bark*",botChatId);
+                break;
+            case 2:
+                sendMessage("*Ruff*",botChatId);
+                break;
+        }
+    }
+    public void killCharlie(){
+        sendMessage("You're a monster",botChatId);
+        living = false;
+        scheduler.shutdown();
+        charmagotchi = null;
     }
     public void showStats(){
         int[] stats = getStatsArray();

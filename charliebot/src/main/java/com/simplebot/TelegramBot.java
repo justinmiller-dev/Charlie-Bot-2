@@ -25,7 +25,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
            MessageHandler messageHandler = new MessageHandler();
            messageText = getMessageText(message).toLowerCase();
            chatId = getChatId(message);
-           System.out.println(messageText);
+           System.out.println(message);
            messageHandler.messageParse(message);
         }
     }
