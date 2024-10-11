@@ -96,7 +96,7 @@ class Charmagotchi extends TelegramBot{
             }
         }, 0, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeHappiness(1); System.out.println(happiness);
+            changeHappiness(-1); System.out.println(happiness);
             if (getHappiness() <= 0){
                 sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
                 living = false;
@@ -278,13 +278,13 @@ class Charmagotchi extends TelegramBot{
             if (stats[0] > 70){
                 sendMessage("Charlie can't keep his eyes open.",botChatId);
             }
-            if (stats[3] > 25 && stats[3]< 50){
+            if (stats[3] > 25 && stats[3]< 35){
                 sendMessage("Charlie looks a little weak.",botChatId);
             }
             if (stats[3] > 10 && stats[3]< 25){
                 sendMessage("Charlie looks very weak.",botChatId);
             }
-        },0,1,TimeUnit.MINUTES);
+        },0,5,TimeUnit.MINUTES);
     }
 }
 
