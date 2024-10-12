@@ -13,33 +13,24 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient = new OkHttpTelegramClient(Main.getBotToken());
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-    String messageText;
-    long chatId;
 
     @Override
     public void consume(Update message) {
 
-        if (message.hasMessage() && message.getMessage().hasText()) {
-           MessageHandler messageHandler = new MessageHandler();
-           messageText = getMessageText(message).toLowerCase();
-           chatId = getChatId(message);
-           System.out.println(messageText);
-           messageHandler.messageParse(message);
-        }
+        if (!message.hasMessage() && !message.getMessage().hasText()) return;
+
+        MessageHandler messageHandler = new MessageHandler();
+        String messageText = getMessageText(message).toLowerCase();
+        System.out.println(messageText);
+        messageHandler.messageParse(message);
     }
-    public long getChatId(Update message){
-        long chatId = message.getMessage().getChatId();
-        return chatId;
-    }
-  
-  
-    public String getMessageText(Update message) {
-        String messageText = message.getMessage().getText();
-        return messageText;
+    public long getChatId(Update message) {
+        return message.getMessage().getChatId();
     }
 
+    public String getMessageText(Update message) {
+        return message.getMessage().getText();
+    }
 
     public void sendMessage(String messageText, long chatId) {
         SendMessage message = SendMessage

@@ -7,15 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 class Charmagotchi extends TelegramBot{
 
-    private volatile long botChatId;
+    private final long botChatId;
     private volatile double hunger;
     private volatile double happiness;
     private volatile double sleepiness;
     private volatile double exercise;
     private volatile boolean living;
-
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
     private static Charmagotchi charmagotchi = null;
 
     private Charmagotchi(double hung, double hap, double sle,double exe,long chatId){
@@ -35,16 +33,16 @@ class Charmagotchi extends TelegramBot{
         showStats();
     }
     
-    public synchronized void updateHunger(double a){
+    public synchronized void addToHunger(double a){
         hunger += a;
     }
-    public synchronized void updateHappiness(double a){
+    public synchronized void addToHappiness(double a){
         happiness += a;
     }
-    public synchronized void updateSleepiness(double a){
+    public synchronized void addToSleepiness(double a){
         sleepiness += a;
     }
-    public synchronized void updateExercise(double a){
+    public synchronized void addTooExercise(double a){
         exercise += a;
     }
     public void changeHunger(double a){
@@ -62,7 +60,7 @@ class Charmagotchi extends TelegramBot{
         exercise += a;
     }
     public void setBotChatId(long a){
-        a = chatId;
+        a = botChatId;
     }
     public double getHunger(){
         return hunger;
@@ -79,7 +77,7 @@ class Charmagotchi extends TelegramBot{
     public long getBotChatId(){
         return botChatId;
     }
-    private void changeAlive(boolean alive){
+    private void setAlive(boolean alive){
         living = alive;
     }
     public synchronized boolean isAlive(){
@@ -114,7 +112,7 @@ class Charmagotchi extends TelegramBot{
             }
         }, 0, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeExercise(-1); System.out.println(exercise);
+            changeExercise(-.05); System.out.println(exercise);
             if (getExercise() <= 0){
                 sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
                 living = false;
@@ -146,15 +144,15 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(1,10);
-            updateExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
+            addTooExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
         }
         if (stats[1]<100){
             int a = getRandomInt(1,20);
-            updateHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
+            addToHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
         }
         if (stats[2]<100){
             int a = getRandomInt(0,5);
-            updateSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
+            addToSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
         }
         switch (getRandomInt(0,1)){
             case 0:
@@ -164,22 +162,20 @@ class Charmagotchi extends TelegramBot{
                 sendMessage("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back",botChatId);
                 break;
         }
-
-
     }
     public void goForWalk(){
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(5,30);
-            updateExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
+            addTooExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
         }
         if (stats[1]<100){
             int a = getRandomInt(7,20);
-            updateHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
+            addToHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
         }
         if (stats[2]<100){
             int a = getRandomInt(0,5);
-            updateSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
+            addToSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
         }
         switch (getRandomInt(0,2)){
             case 0:
@@ -196,10 +192,10 @@ class Charmagotchi extends TelegramBot{
 
     }
     public void feedMeal(){
-        double curHung = getHunger();
-        double upHung =- curHung;
-        updateHunger(upHung);
-        updateHappiness(7);
+        double currentHunger = getHunger();
+        double updateHunger =-currentHunger;
+        addToHunger(updateHunger);
+        addToHappiness(7);
         sendMessage("Charlie feels well fed.",botChatId);
         switch (getRandomInt(0,2)){
             case 0:
@@ -214,14 +210,14 @@ class Charmagotchi extends TelegramBot{
         }
     }
     public void giveTreat(){
-        updateHunger(-1);
-        updateHappiness(10);
+        addToHunger(-1);
+        addToHappiness(10);
         sendMessage("*Happy Munches*",botChatId);
     }
     public void sendToBed() {
-        double curSleep = getSleepiness();
-        double upSleep =- curSleep;
-        updateSleepiness(upSleep);
+        double currentSleep = getSleepiness();
+        double updateSleep =-currentSleep;
+        addToSleepiness(updateSleep);
        sendMessage("Charlie is feeling refreshed",botChatId);
     }
     public void speak(){
@@ -245,15 +241,15 @@ class Charmagotchi extends TelegramBot{
     }
     public void showStats(){
         double[] stats = getStatsArray();
-        long hung = Math.round(stats[0]);
-        long happ = Math.round(stats[1]);
-        long slee = Math.round(stats[2]);
-        long fitn = Math.round(stats[3]);
+        long hunger = Math.round(stats[0]);
+        long happiness = Math.round(stats[1]);
+        long sleep = Math.round(stats[2]);
+        long fitness = Math.round(stats[3]);
         sendMessage("Charlie's current stats are."+ "\n" +
-                " Hunger: "+ hung +"%"+"\n" +
-                " Happiness: "+ happ +"%"+"\n" +
-                " Sleepiness: "+ slee +"%"+"\n" +
-                " Fitness: "+ fitn +"%"+"\n"
+                " Hunger: "+ hunger +"%"+"\n" +
+                " Happiness: "+ happiness +"%"+"\n" +
+                " Tiredness: "+ sleep +"%"+"\n" +
+                " Fitness: "+ fitness +"%"+"\n"
                 ,botChatId);
     }
     public void statsAlerts(){
