@@ -45,7 +45,6 @@ public class CommandHandler extends TelegramBot {
         }
         if (messageText.contains("/killCharlie")&& charmagotchi.isAlive() && charmagotchi.getBotChatId() == chatId && user.equals("Justin")){
             charmagotchi.killCharlie();
-            sendMessage("Rude",chatId);
         }
 
     }

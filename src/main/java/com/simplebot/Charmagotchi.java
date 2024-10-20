@@ -6,7 +6,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 class Charmagotchi extends TelegramBot{
-
+    StringBuilder message = new StringBuilder();
+    private String finalMessage;
     private final long botChatId;
     private volatile double hunger;
     private volatile double happiness;
@@ -144,22 +145,29 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(1,10);
-            addTooExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
+            addTooExercise(a);
+            message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
             int a = getRandomInt(1,20);
-            addToHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
+            addToHappiness(a);
+            message.append("Charlie gained ").append(a).append(" Happiness").append("\n");
         }
         if (stats[2]<100){
             int a = getRandomInt(0,5);
-            addToSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
+            addToSleepiness(a);
+            message.append("Charlie gained ").append(a).append(" Sleepiness").append("\n");
         }
         switch (getRandomInt(0,1)){
             case 0:
-                sendMessage("You throw the ball. Charlie catches it and brings it back",botChatId);
+                message.append("You throw the ball. Charlie catches it and brings it back");
+                finalMessage = message.toString();
+                sendMessage(finalMessage,botChatId);
                 break;
             case 1:
-                sendMessage("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back",botChatId);
+                message.append("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back");
+                finalMessage = message.toString();
+                sendMessage(finalMessage,botChatId);
                 break;
         }
     }
@@ -196,18 +204,20 @@ class Charmagotchi extends TelegramBot{
         double updateHunger =-currentHunger;
         addToHunger(updateHunger);
         addToHappiness(7);
-        sendMessage("Charlie feels well fed.",botChatId);
         switch (getRandomInt(0,2)){
             case 0:
-                sendMessage("OM NOM NOM!",botChatId);
+                message.append("OM NOM NOM!").append("\n");
                 break;
             case 1:
-                sendMessage("MUNCH! CRUNCH! MUNCH!",botChatId);
+                message.append("MUNCH! CRUNCH! MUNCH!").append("\n");
                 break;
             case 2:
-                sendMessage("NOM NOM NOM",botChatId);
+                message.append("NOM NOM NOM").append("\n");
                 break;
         }
+        message.append("Charlie feels well fed.");
+        finalMessage = message.toString();
+        sendMessage(finalMessage,botChatId);
     }
     public void giveTreat(){
         addToHunger(-1);
