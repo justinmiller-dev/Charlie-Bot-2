@@ -24,8 +24,6 @@ class Charmagotchi extends TelegramBot{
         exercise = exe;
         living = false;
         botChatId = chatId;
-        //System.out.println(chatId);
-
     }
     public void startCharmagotchi(){
         startStatsScheduler(botChatId);
@@ -78,9 +76,6 @@ class Charmagotchi extends TelegramBot{
     public long getBotChatId(){
         return botChatId;
     }
-    private void setAlive(boolean alive){
-        living = alive;
-    }
     public synchronized boolean isAlive(){
         return living;
     }
@@ -132,7 +127,7 @@ class Charmagotchi extends TelegramBot{
     }
     public static synchronized Charmagotchi getInstance(long a) {
         if (charmagotchi == null) {
-            charmagotchi = new Charmagotchi(0, 55, 0, 51, a);
+            charmagotchi = new Charmagotchi(0, 55, 0, 71, a);
         }
         return charmagotchi;
     }
@@ -175,25 +170,34 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(5,30);
-            addTooExercise(a); sendMessage("Charlie gained " + a + " Fitness",botChatId);
+            addTooExercise(a);
+            message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
             int a = getRandomInt(7,20);
-            addToHappiness(a); sendMessage("Charlie gained " + a + " Happiness",botChatId);
+            addToHappiness(a);
+            message.append("Charlie gained ").append(a).append(" Happiness").append("\n");
         }
         if (stats[2]<100){
             int a = getRandomInt(0,5);
-            addToSleepiness(a); sendMessage("Charlie gained " + a + " Sleepiness",botChatId);
+            addToSleepiness(a);
+            message.append("Charlie gained ").append(a).append(" Sleepiness").append("\n");
         }
         switch (getRandomInt(0,2)){
             case 0:
-                sendMessage("You go for a walk around the park. Charlie sees a squirrel and chases it up a tree.",botChatId);
+                message.append("You go for a walk around the park. Charlie sees a squirrel and chases it up a tree.");
+                finalMessage = message.toString();
+                sendMessage(finalMessage,botChatId);
                 break;
             case 1:
-                sendMessage("You go for a walk around town. Charlie makes a new friend.",botChatId);
+                message.append("You go for a walk around town. Charlie makes a new friend.");
+                finalMessage = message.toString();
+                sendMessage(finalMessage,botChatId);
                 break;
             case 2:
-                sendMessage("You go for a walk around the park. It's fun but uneventful.",botChatId);
+                message.append("You go for a walk around the park. It's fun but uneventful.");
+                finalMessage = message.toString();
+                sendMessage(finalMessage,botChatId);
                 break;
         }
 
@@ -267,30 +271,32 @@ class Charmagotchi extends TelegramBot{
             //showStats();
             double[] stats = getStatsArray();
             if (stats[0] > 50 && stats[0]< 70){
-                sendMessage("*Tummy Grumble*",botChatId);
+                message.append("*Tummy Grumble*").append("\n");
             }
             if (stats[0] > 70){
-                sendMessage("*wimper* *Tummy Grumble*",botChatId);
+                message.append("*wimper* *Tummy Grumble*").append("\n");
             }
             if (stats[1] > 25 && stats[1]< 50){
-                sendMessage("Charlie brings you his ball *Sad Woof*",botChatId);
+                message.append("Charlie brings you his ball *Sad Woof*").append("\n");
             }
             if (stats[1] > 10 && stats[1]< 25){
-                sendMessage("Charlie lays his head on you and lets out a sigh. You see tears in his eyes.",botChatId);
+                message.append("Charlie lays his head on you and lets out a sigh. You see tears in his eyes.").append("\n");
             }
             if (stats[2] > 50 && stats[2]< 70){
-                sendMessage("Charlie is looking pretty tired.",botChatId);
+                message.append("Charlie is looking pretty tired.").append("\n");
             }
             if (stats[0] > 70){
-                sendMessage("Charlie can't keep his eyes open.",botChatId);
+                message.append("Charlie can't keep his eyes open.").append("\n");
             }
             if (stats[3] > 25 && stats[3]< 35){
-                sendMessage("Charlie looks a little weak.",botChatId);
+                message.append("Charlie looks a little weak.").append("\n");
             }
             if (stats[3] > 10 && stats[3]< 25){
-                sendMessage("Charlie looks very weak.",botChatId);
+                message.append("Charlie looks very weak.").append("\n");
             }
-        },0,5,TimeUnit.MINUTES);
+            finalMessage = message.toString();
+            sendMessage(finalMessage,botChatId);
+        },0,20,TimeUnit.MINUTES);
     }
 }
 
