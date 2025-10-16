@@ -1,6 +1,6 @@
 # Charmagotchi
 
-Charmagotchi is a message based tomagotchi game for Telegram.  
+Charmagotchi is a message based Tamagotchi game for Telegram. 
 
 ## Current Goals
 - [x] Working prototype 
