@@ -3,23 +3,25 @@ package com.simplebot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 public class CommandHandler extends TelegramBot {
 
     private static ArrayList<Charmagotchi> botInstances = new ArrayList<Charmagotchi>();
-
+    private static HashMap<Long, Charmagotchi> botObjects = new HashMap<Long, Charmagotchi>();
 
     public void commandParse(Update update) {
 
-        long chatId = update.getMessage().getChatId();
+        long primitiveChatId = update.getMessage().getChatId();
+        Long objectChatID = primitiveChatId;
         String user = update.getMessage().getFrom().getFirstName();
         String messageText = update.getMessage().getText();
 
 
         if (messageText.contains("/start")) {
-           Charmagotchi newBot = addIfNotExists(botInstances, chatId);
+           Charmagotchi newBot = addIfNotExists(botInstances, primitiveChatId);
            if (newBot != null){
                botInstances.add(newBot);
                System.out.println("yay");
@@ -28,7 +30,7 @@ public class CommandHandler extends TelegramBot {
            }
         }
         if (messageText.contains("/Begin")){
-            Charmagotchi activeBot = botInstances.get(getCurrentInstance(botInstances,chatId));
+            Charmagotchi activeBot = botInstances.get(getCurrentInstance(botInstances,primitiveChatId));
             activeBot.startCharmagotchi();
         }
     }
