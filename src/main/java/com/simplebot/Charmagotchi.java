@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 class Charmagotchi extends TelegramBot{
     StringBuilder message = new StringBuilder();
     private String finalMessage;
-    private final long botChatId;
+    private long botChatId;
     private volatile double hunger;
     private volatile double happiness;
     private volatile double sleepiness;
@@ -17,7 +17,8 @@ class Charmagotchi extends TelegramBot{
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Charmagotchi charmagotchi = null;
 
-    private Charmagotchi(double hung, double hap, double sle,double exe,long chatId){
+
+    Charmagotchi(double hung, double hap, double sle, double exe, long chatId){
         hunger = hung;
         happiness = hap;
         sleepiness = sle;
@@ -41,7 +42,7 @@ class Charmagotchi extends TelegramBot{
     public synchronized void addToSleepiness(double a){
         sleepiness += a;
     }
-    public synchronized void addTooExercise(double a){
+    public synchronized void addToExercise(double a){
         exercise += a;
     }
     public void changeHunger(double a){
@@ -59,7 +60,7 @@ class Charmagotchi extends TelegramBot{
         exercise += a;
     }
     public void setBotChatId(long a){
-        a = botChatId;
+        botChatId = a;
     }
     public double getHunger(){
         return hunger;
@@ -83,7 +84,7 @@ class Charmagotchi extends TelegramBot{
         scheduler.scheduleAtFixedRate(()->{
             changeHunger(2); System.out.println(hunger);
             if (getHunger() >= 100){
-                sendMessage("Charlie has starved to death. I hope you're happy >:(",chatId);
+                sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
@@ -140,7 +141,7 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(1,10);
-            addTooExercise(a);
+            addToExercise(a);
             message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
@@ -158,11 +159,13 @@ class Charmagotchi extends TelegramBot{
                 message.append("You throw the ball. Charlie catches it and brings it back");
                 finalMessage = message.toString();
                 sendMessage(finalMessage,botChatId);
+                message.setLength(0);
                 break;
             case 1:
                 message.append("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back");
                 finalMessage = message.toString();
                 sendMessage(finalMessage,botChatId);
+                message.setLength(0);
                 break;
         }
     }
@@ -170,7 +173,7 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(5,30);
-            addTooExercise(a);
+            addToExercise(a);
             message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
@@ -188,20 +191,21 @@ class Charmagotchi extends TelegramBot{
                 message.append("You go for a walk around the park. Charlie sees a squirrel and chases it up a tree.");
                 finalMessage = message.toString();
                 sendMessage(finalMessage,botChatId);
+                message.setLength(0);
                 break;
             case 1:
                 message.append("You go for a walk around town. Charlie makes a new friend.");
                 finalMessage = message.toString();
                 sendMessage(finalMessage,botChatId);
+                message.setLength(0);
                 break;
             case 2:
                 message.append("You go for a walk around the park. It's fun but uneventful.");
                 finalMessage = message.toString();
                 sendMessage(finalMessage,botChatId);
+                message.setLength(0);
                 break;
         }
-
-
     }
     public void feedMeal(){
         double currentHunger = getHunger();
@@ -222,6 +226,7 @@ class Charmagotchi extends TelegramBot{
         message.append("Charlie feels well fed.");
         finalMessage = message.toString();
         sendMessage(finalMessage,botChatId);
+        message.setLength(0);
     }
     public void giveTreat(){
         addToHunger(-1);
@@ -252,6 +257,7 @@ class Charmagotchi extends TelegramBot{
         living = false;
         scheduler.shutdown();
         charmagotchi = null;
+
     }
     public void showStats(){
         double[] stats = getStatsArray();
@@ -276,10 +282,10 @@ class Charmagotchi extends TelegramBot{
             if (stats[0] > 70){
                 message.append("*wimper* *Tummy Grumble*").append("\n");
             }
-            if (stats[1] > 25 && stats[1]< 50){
+            if (stats[1] > 25 && stats[1] < 50){
                 message.append("Charlie brings you his ball *Sad Woof*").append("\n");
             }
-            if (stats[1] > 10 && stats[1]< 25){
+            if (stats[1] > 10 && stats[1] < 25){
                 message.append("Charlie lays his head on you and lets out a sigh. You see tears in his eyes.").append("\n");
             }
             if (stats[2] > 50 && stats[2]< 70){
@@ -296,6 +302,7 @@ class Charmagotchi extends TelegramBot{
             }
             finalMessage = message.toString();
             sendMessage(finalMessage,botChatId);
+            message.setLength(0);
         },0,20,TimeUnit.MINUTES);
     }
 }
