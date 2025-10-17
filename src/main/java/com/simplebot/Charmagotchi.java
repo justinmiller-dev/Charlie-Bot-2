@@ -12,17 +12,17 @@ class Charmagotchi extends TelegramBot{
     private volatile double hunger;
     private volatile double happiness;
     private volatile double sleepiness;
-    private volatile double exercise;
+    private volatile double fitness;
     private volatile boolean living;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Charmagotchi charmagotchi = null;
 
 
     Charmagotchi(long chatId){
-        hunger = 0;
-        happiness = 90;
-        sleepiness = 0;
-        exercise = 75;
+        hunger = 50;
+        happiness = 50;
+        sleepiness = 50;
+        fitness = 50;
         living = false;
         botChatId = chatId;
     }
@@ -32,32 +32,37 @@ class Charmagotchi extends TelegramBot{
         living = true;
         showStats();
     }
-    
+    public synchronized boolean isAlive(){
+        return living;
+    }
     public synchronized void addToHunger(double a){
-        hunger += a;
-    }
-    public synchronized void addToHappiness(double a){
-        happiness += a;
-    }
-    public synchronized void addToSleepiness(double a){
-        sleepiness += a;
-    }
-    public synchronized void addToExercise(double a){
-        exercise += a;
-    }
-    public void changeHunger(double a){
-        synchronized(this){
+        if (hunger <= 100 && hunger + a <= 100){
             hunger += a;
+        } else {
+            hunger = 100;
         }
     }
-    public void changeHappiness(double a){
-        happiness += a;
+    public synchronized void addToHappiness(double a){
+        if (happiness < 100 && happiness + a <= 100){
+            happiness += a;
+        } else {
+            happiness = 100;
+        }
+
     }
-    public void changeSleepiness(double a){
-        sleepiness += a;
+    public synchronized void addToSleepiness(double a){
+        if (sleepiness <= 100 && sleepiness + a <= 100){
+            sleepiness += a;
+        } else {
+            sleepiness = 100;
+        }
     }
-    public void changeExercise(double a){
-        exercise += a;
+    public synchronized void addToFitness(double a){
+        if (fitness <= 100 && fitness + a <= 100){
+            fitness += a;
+        } else {
+            fitness = 100;
+        }
     }
     public void setBotChatId(long a){
         botChatId = a;
@@ -71,59 +76,57 @@ class Charmagotchi extends TelegramBot{
     public double getSleepiness(){
         return sleepiness;
     }
-    public double getExercise(){
-        return exercise;
+    public double getFitness(){
+        return fitness;
     }
     public long getBotChatId(){
         return botChatId;
     }
-    public synchronized boolean isAlive(){
-        return living;
-    }
+
     public void startStatsScheduler(long chatId){
         scheduler.scheduleAtFixedRate(()->{
-            changeHunger(2); System.out.println(hunger);
-            if (getHunger() >= 100){
+            addToHunger(-2); System.out.println(hunger);
+            if (getHunger() <= 0){
                 sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 1, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeHappiness(-1); System.out.println(happiness);
+            addToHappiness(-1); System.out.println(happiness);
             if (getHappiness() <= 0){
                 sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 1, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeSleepiness(2); System.out.println(sleepiness);
-            if (getSleepiness() >= 100){
+            addToSleepiness(-2); System.out.println(sleepiness);
+            if (getSleepiness() <= 0){
                 sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 1, 10, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(()->{
-            changeExercise(-.05); System.out.println(exercise);
-            if (getExercise() <= 0){
+            addToFitness(-.05); System.out.println(fitness);
+            if (getFitness() <= 0){
                 sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
                 living = false;
                 scheduler.shutdown();
                 charmagotchi = null;
             }
-        }, 0, 10, TimeUnit.MINUTES);
+        }, 1, 10, TimeUnit.MINUTES);
     }
     public double[] getStatsArray(){
         double[] stats = new double[4];
         stats[0] = hunger;
         stats[1] = happiness;
         stats[2] = sleepiness;
-        stats[3] = exercise;
+        stats[3] = fitness;
         return stats;
     }
     public static synchronized Charmagotchi getInstance(long a) {
@@ -141,7 +144,7 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(1,10);
-            addToExercise(a);
+            addToFitness(a);
             message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
@@ -173,7 +176,7 @@ class Charmagotchi extends TelegramBot{
         double[] stats = getStatsArray();
         if (stats[3]<100){
             int a = getRandomInt(5,30);
-            addToExercise(a);
+            addToFitness(a);
             message.append("Charlie gained ").append(a).append(" Fitness").append("\n");
         }
         if (stats[1]<100){
@@ -182,7 +185,7 @@ class Charmagotchi extends TelegramBot{
             message.append("Charlie gained ").append(a).append(" Happiness").append("\n");
         }
         if (stats[2]<100){
-            int a = getRandomInt(0,5);
+            int a = getRandomInt(-5,0);
             addToSleepiness(a);
             message.append("Charlie gained ").append(a).append(" Sleepiness").append("\n");
         }
@@ -208,9 +211,7 @@ class Charmagotchi extends TelegramBot{
         }
     }
     public void feedMeal(){
-        double currentHunger = getHunger();
-        double updateHunger =-currentHunger;
-        addToHunger(updateHunger);
+        addToHunger(100);
         addToHappiness(7);
         switch (getRandomInt(0,2)){
             case 0:
@@ -229,14 +230,12 @@ class Charmagotchi extends TelegramBot{
         message.setLength(0);
     }
     public void giveTreat(){
-        addToHunger(-1);
+        addToHunger(1);
         addToHappiness(10);
         sendMessage("*Happy Munches*",botChatId);
     }
     public void sendToBed() {
-        double currentSleep = getSleepiness();
-        double updateSleep =-currentSleep;
-        addToSleepiness(updateSleep);
+        addToSleepiness(100);
        sendMessage("Charlie is feeling refreshed",botChatId);
     }
     public void speak(){
@@ -274,36 +273,34 @@ class Charmagotchi extends TelegramBot{
     }
     public void statsAlerts(){
         scheduler.scheduleAtFixedRate(()->{
-            //showStats();
-            double[] stats = getStatsArray();
-            if (stats[0] > 50 && stats[0]< 70){
+            if (hunger < 70 && hunger > 50){
                 message.append("*Tummy Grumble*").append("\n");
             }
-            if (stats[0] > 70){
-                message.append("*wimper* *Tummy Grumble*").append("\n");
+            if (hunger < 50){
+                message.append("*Whimper* *Tummy Grumble*").append("\n");
             }
-            if (stats[1] > 25 && stats[1] < 50){
+            if (happiness > 25 && happiness < 50){
                 message.append("Charlie brings you his ball *Sad Woof*").append("\n");
             }
-            if (stats[1] > 10 && stats[1] < 25){
+            if (happiness < 25){
                 message.append("Charlie lays his head on you and lets out a sigh. You see tears in his eyes.").append("\n");
             }
-            if (stats[2] > 50 && stats[2]< 70){
+            if (sleepiness < 70 && sleepiness > 50){
                 message.append("Charlie is looking pretty tired.").append("\n");
             }
-            if (stats[0] > 70){
+            if (sleepiness < 50){
                 message.append("Charlie can't keep his eyes open.").append("\n");
             }
-            if (stats[3] > 25 && stats[3]< 35){
+            if (fitness > 25 && fitness < 35){
                 message.append("Charlie looks a little weak.").append("\n");
             }
-            if (stats[3] > 10 && stats[3]< 25){
+            if (fitness < 25){
                 message.append("Charlie looks very weak.").append("\n");
             }
             finalMessage = message.toString();
             sendMessage(finalMessage,botChatId);
             message.setLength(0);
-        },0,20,TimeUnit.MINUTES);
+        },1,20,TimeUnit.MINUTES);
     }
 }
 
