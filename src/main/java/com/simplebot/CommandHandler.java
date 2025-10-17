@@ -9,7 +9,6 @@ import java.util.stream.IntStream;
 
 public class CommandHandler extends TelegramBot {
 
-    private static ArrayList<Charmagotchi> botInstances = new ArrayList<Charmagotchi>();
     private static HashMap<Long, Charmagotchi> botObjects = new HashMap<Long, Charmagotchi>();
 
     public void commandParse(Update update) {
@@ -19,43 +18,52 @@ public class CommandHandler extends TelegramBot {
         String user = update.getMessage().getFrom().getFirstName();
         String messageText = update.getMessage().getText();
 
-
-        if (messageText.contains("/start")) {
-           Charmagotchi newBot = addIfNotExists(botInstances, primitiveChatId);
-           if (newBot != null){
-               botInstances.add(newBot);
-               System.out.println("yay");
-           } else {
-               System.out.println("bot already exists");
-           }
-        }
-        if (messageText.contains("/Begin")){
-            Charmagotchi activeBot = botInstances.get(getCurrentInstance(botInstances,primitiveChatId));
-            activeBot.startCharmagotchi();
-        }
-    }
-
-    private Charmagotchi addIfNotExists(ArrayList<Charmagotchi> charm, long newChatId){
-        boolean exists = charm.stream().anyMatch(Charmagotchi -> Charmagotchi.getBotChatId() == newChatId);
-        System.out.println("list size: " + charm.size());
-        System.out.println("Looking for: " + newChatId);
-        if (!exists) {
-            Charmagotchi newChar = new Charmagotchi(2,50,50,50,newChatId);
-            System.out.println("New Bot added");
-            System.out.println(newChatId);
-            return newChar;
-        }else{
-            return null;
-        }
-    }
-    private int getCurrentInstance(ArrayList<Charmagotchi> charm, long targetChatId){
-        System.out.println(targetChatId);
-        for (int i = 0; i < charm.size(); i++){
-            if (charm.get(i).getBotChatId() == targetChatId) {
-                return i;
+        if (messageText.contains("/startCharmagotchi")){
+            addToHashmap(botObjects,objectChatID);
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            if (activeBot.isAlive()){
+                System.out.println("bot already running");
+            } else {
+                activeBot.startCharmagotchi();
             }
         }
-        return -1;
+        if (messageText.contains("/killCharlie")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.killCharlie();
+            botObjects.remove(objectChatID);
+        }
+        if (messageText.contains("/playball")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.playBall();
+        }
+        if (messageText.contains("/stats")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.showStats();
+        }
+        if (messageText.contains("/meal")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.feedMeal();
+        }
+        if (messageText.contains("/treat")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.giveTreat();
+        }
+        if (messageText.contains("/speak")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.speak();
+        }
+        if (messageText.contains("/sleep")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.sendToBed();
+        }
+        if (messageText.contains("/walk")){
+            Charmagotchi activeBot = botObjects.get(objectChatID);
+            activeBot.goForWalk();
+        }
+    }
+    private Charmagotchi addToHashmap(HashMap<Long, Charmagotchi> bot, Long chatID){
+        bot.computeIfAbsent(chatID, id -> new Charmagotchi(chatID));
+        return bot.get(chatID);
     }
 }
 

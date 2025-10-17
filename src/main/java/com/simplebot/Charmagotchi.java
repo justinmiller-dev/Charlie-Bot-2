@@ -18,11 +18,11 @@ class Charmagotchi extends TelegramBot{
     private static Charmagotchi charmagotchi = null;
 
 
-    Charmagotchi(double hung, double hap, double sle, double exe, long chatId){
-        hunger = hung;
-        happiness = hap;
-        sleepiness = sle;
-        exercise = exe;
+    Charmagotchi(long chatId){
+        hunger = 0;
+        happiness = 90;
+        sleepiness = 0;
+        exercise = 75;
         living = false;
         botChatId = chatId;
     }
@@ -128,7 +128,7 @@ class Charmagotchi extends TelegramBot{
     }
     public static synchronized Charmagotchi getInstance(long a) {
         if (charmagotchi == null) {
-            charmagotchi = new Charmagotchi(0, 55, 0, 71, a);
+            charmagotchi = new Charmagotchi(a);
         }
         return charmagotchi;
     }
