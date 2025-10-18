@@ -1,11 +1,14 @@
 # Charmagotchi
 
-Charmagotchi is a message based Tamagotchi game for Telegram. 
+Charmagotchi is an interactive pet bot for the popular messaging platform Telegram. 
 
 ## Current Goals
 - [x] Working prototype 
-- [ ] Presistant stat keeping
+- [ ] Persistent stat keeping
 - [x]  Multiple chat support
-
+- [ ] Add Life cycle
+- [ ] Add Minigame
+- [ ] Add Hygiene
+- [ ] Add illness and health
 
  
