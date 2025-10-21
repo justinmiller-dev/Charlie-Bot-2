@@ -29,10 +29,10 @@ class Charmagotchi extends TelegramBot{
         botChatId = chatId;
     }
     public void startCharmagotchi(){
-        startStatsScheduler(botChatId);
+        startStatsScheduler();
         statsAlerts();
         living = true;
-        showStats();
+        //showStats();
     }
     public synchronized boolean isAlive(){
         return living;
@@ -88,7 +88,32 @@ class Charmagotchi extends TelegramBot{
         return botChatId;
     }
 
-    public void startStatsScheduler(long chatId){
+    public double[] getStatsArray(){
+        double[] stats = new double[4];
+        stats[0] = hunger;
+        stats[1] = happiness;
+        stats[2] = sleepiness;
+        stats[3] = fitness;
+        return stats;
+    }
+    public String getStatsMessage(){
+        double[] stats = getStatsArray();
+        long hunger = Math.round(stats[0]);
+        long happiness = Math.round(stats[1]);
+        long sleep = Math.round(stats[2]);
+        long fitness = Math.round(stats[3]);
+        return ("Charlie's current stats are."+ "\n" +
+                        " Hunger: "+ hunger +"%"+"\n" +
+                        " Happiness: "+ happiness +"%"+"\n" +
+                        " Tiredness: "+ sleep +"%"+"\n" +
+                        " Fitness: "+ fitness +"%"+"\n");
+    }
+    private int getRandomInt(int a, int b) {
+        Random rand = new Random();
+        return rand.nextInt(a, b);
+    }
+
+    public void startStatsScheduler(){
         scheduler.scheduleAtFixedRate(()->{
             addToHunger(-2); System.out.println(hunger);
             if (getHunger() <= 0){
@@ -126,24 +151,15 @@ class Charmagotchi extends TelegramBot{
             }
         }, 1, 10, TimeUnit.MINUTES);
     }
-    public double[] getStatsArray(){
-        double[] stats = new double[4];
-        stats[0] = hunger;
-        stats[1] = happiness;
-        stats[2] = sleepiness;
-        stats[3] = fitness;
-        return stats;
-    }
+
     public static synchronized Charmagotchi getInstance(long a) {
         if (charmagotchi == null) {
             charmagotchi = new Charmagotchi(a);
         }
         return charmagotchi;
     }
-    private int getRandomInt(int a, int b){
-       Random rand = new Random();
-        return rand.nextInt(a,b);
-    }
+
+
     public void playBall(){
 
         double[] stats = getStatsArray();

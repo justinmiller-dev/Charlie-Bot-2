@@ -2,15 +2,12 @@ package com.simplebot;
 
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
@@ -19,21 +16,10 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
     @Override
     public void consume(Update message) {
-
-        if (!message.hasMessage() && !message.getMessage().hasText()) return;
-
         MessageHandler messageHandler = new MessageHandler();
-        String messageText = getMessageText(message).toLowerCase();
-        System.out.println(messageText);
         messageHandler.messageParse(message);
     }
-    public long getChatId(Update message) {
-        return message.getMessage().getChatId();
-    }
 
-    public String getMessageText(Update message) {
-        return message.getMessage().getText();
-    }
 
     public void sendMessage(String messageText, long chatId) {
         SendMessage message = SendMessage
@@ -44,6 +30,27 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             telegramClient.execute(message);
         } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void sendInlineKeyboard(long chatId, ReplyKeyboard replyKeyboard, String messageText) {
+        SendMessage message = SendMessage
+                .builder()
+                .chatId(chatId)
+                .text(messageText)
+                .build();
+                message.setReplyMarkup(replyKeyboard);
+        try {
+            telegramClient.execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendCallBackMessage(AnswerCallbackQuery callBack){
+        try {
+            telegramClient.execute(callBack);
+        } catch (TelegramApiException e){
             e.printStackTrace();
         }
     }
