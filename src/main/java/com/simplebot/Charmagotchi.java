@@ -14,6 +14,7 @@ class Charmagotchi extends TelegramBot{
     private volatile double sleepiness;
     private volatile double fitness;
     private volatile boolean living;
+    private volatile boolean asleep;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static Charmagotchi charmagotchi = null;
 
@@ -24,6 +25,7 @@ class Charmagotchi extends TelegramBot{
         sleepiness = 50;
         fitness = 50;
         living = false;
+        asleep = false;
         botChatId = chatId;
     }
     public void startCharmagotchi(){
@@ -34,6 +36,9 @@ class Charmagotchi extends TelegramBot{
     }
     public synchronized boolean isAlive(){
         return living;
+    }
+    public synchronized boolean isAsleep(){
+        return asleep;
     }
     public synchronized void addToHunger(double a){
         if (hunger <= 100 && hunger + a <= 100){
@@ -234,8 +239,9 @@ class Charmagotchi extends TelegramBot{
         addToHappiness(10);
         sendMessage("*Happy Munches*",botChatId);
     }
-    public void sendToBed() {
+    public void sendToBed(double a) {
         addToSleepiness(100);
+        asleep = true;
        sendMessage("Charlie is feeling refreshed",botChatId);
     }
     public void speak(){

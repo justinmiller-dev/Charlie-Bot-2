@@ -1,9 +1,16 @@
 package com.simplebot;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -18,11 +25,12 @@ public class CommandHandler extends TelegramBot {
         String user = update.getMessage().getFrom().getFirstName();
         String messageText = update.getMessage().getText();
 
+
         if (messageText.contains("/startCharmagotchi")){
-            addToHashmap(botObjects,objectChatID);
+            botObjects.computeIfAbsent(objectChatID, id -> new Charmagotchi(primitiveChatId));
             Charmagotchi activeBot = botObjects.get(objectChatID);
             if (activeBot.isAlive()){
-                System.out.println("bot already running");
+                sendMessage("*Bark Bark*",activeBot.getBotChatId());
             } else {
                 activeBot.startCharmagotchi();
             }
@@ -34,7 +42,11 @@ public class CommandHandler extends TelegramBot {
         }
         if (messageText.contains("/playball")){
             Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.playBall();
+            if (activeBot.isAsleep()){
+                sendMessage("This is a message",activeBot.getBotChatId());
+            } else {
+                activeBot.playBall();
+            }
         }
         if (messageText.contains("/stats")){
             Charmagotchi activeBot = botObjects.get(objectChatID);
@@ -54,16 +66,12 @@ public class CommandHandler extends TelegramBot {
         }
         if (messageText.contains("/sleep")){
             Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.sendToBed();
+            activeBot.sendToBed(8);
         }
         if (messageText.contains("/walk")){
             Charmagotchi activeBot = botObjects.get(objectChatID);
             activeBot.goForWalk();
         }
-    }
-    private Charmagotchi addToHashmap(HashMap<Long, Charmagotchi> bot, Long chatID){
-        bot.computeIfAbsent(chatID, id -> new Charmagotchi(chatID));
-        return bot.get(chatID);
     }
 }
 
