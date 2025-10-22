@@ -47,7 +47,7 @@ class Charmagotchi extends TelegramBot{
         }
     }
     public synchronized void addToHappiness(double a){
-        if (happiness < 100 && happiness + a <= 100){
+        if (happiness <= 100 && happiness + a <= 100){
             happiness += a;
         } else {
             happiness = 100;
@@ -100,7 +100,7 @@ class Charmagotchi extends TelegramBot{
         long fitness = Math.round(stats[3]);
         return ("\\/(°ᵔᴥᵔ°)\\/"+ "\n" +
 
-                "Hello I'm Charlie! *Woof *Woof* \n\n"  +
+                "Hello I'm Charlie! *Woof* *Woof* \n\n"  +
 
                 "Here is how I'm feeling."+ "\n" +
                 "------------------------\n" +
@@ -292,28 +292,28 @@ class Charmagotchi extends TelegramBot{
     }
     public void statsAlerts(){
         scheduler.scheduleAtFixedRate(()->{
-            if (hunger < 70 && hunger > 50){
+            if (hunger < 50 && hunger > 20){
                 message.append("I could use a snack :)").append("\n");
             }
-            if (hunger < 50){
+            if (hunger < 20){
                 message.append("Is it dinner time yet?").append("\n");
             }
-            if (happiness > 25 && happiness < 50){
+            if (happiness < 50 && happiness > 20){
                 message.append("I want to play!").append("\n");
             }
-            if (happiness < 25){
+            if (happiness < 20){
                 message.append("Why won't you play with me :(").append("\n");
             }
-            if (sleepiness < 70 && sleepiness > 50){
+            if (sleepiness < 50 && sleepiness > 20){
                 message.append("*Yawn* It's time for a nap").append("\n");
             }
-            if (sleepiness < 50){
+            if (sleepiness < 20){
                 message.append("I'm ready for bed").append("\n");
             }
-            if (fitness > 25 && fitness < 35){
+            if (fitness < 50 && fitness > 20){
                 message.append("Can we go for a walk? :D").append("\n");
             }
-            if (fitness < 25){
+            if (fitness < 20){
                 message.append("I've been cooped up all day! please take me for a walk").append("\n");
             }
             if (!message.isEmpty()){
