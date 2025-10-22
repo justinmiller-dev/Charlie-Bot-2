@@ -4,6 +4,7 @@ import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -19,7 +20,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         MessageHandler messageHandler = new MessageHandler();
         messageHandler.messageParse(message);
     }
-
 
     public void sendMessage(String messageText, long chatId) {
         SendMessage message = SendMessage
@@ -50,6 +50,14 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     public void sendCallBackMessage(AnswerCallbackQuery callBack){
         try {
             telegramClient.execute(callBack);
+        } catch (TelegramApiException e){
+            e.printStackTrace();
+        }
+    }
+    public void deleteMessage(String chatId, int messageID){
+        DeleteMessage deleteMessage = new DeleteMessage(chatId,messageID);
+        try {
+            telegramClient.execute(deleteMessage);
         } catch (TelegramApiException e){
             e.printStackTrace();
         }

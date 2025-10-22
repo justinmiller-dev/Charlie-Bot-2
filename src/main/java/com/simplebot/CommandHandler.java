@@ -17,33 +17,50 @@ public class CommandHandler extends TelegramBot {
 
     public void commandParse(Update update) {
 
-        if (update.hasCallbackQuery()){
-
+        if (update.hasCallbackQuery()) {
 
             CallbackQuery callbackQuery = update.getCallbackQuery();
             Charmagotchi activeBot = botObjects.get(update.getCallbackQuery().getMessage().getChatId());
             String callBackData = callbackQuery.getData();
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(callbackQuery.getId());
-            long messageId = callbackQuery.getMessage().getMessageId();
-            long chatId = activeBot.getBotChatId();
+            int messageId = callbackQuery.getMessage().getMessageId();
+            String chatIdString = Long.toString(activeBot.getBotChatId());
 
-            if (callBackData.equals("playball")){
+            if (callBackData.equals("playball")) {
                 activeBot.playBall();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             if (callBackData.equals("treat")) {
                 activeBot.giveTreat();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             if (callBackData.equals("feed")) {
                 activeBot.feedMeal();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             if (callBackData.equals("walk")) {
                 activeBot.goForWalk();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             if (callBackData.equals("bed")) {
-                activeBot.sendToBed(8);
+                activeBot.sendToBed();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             if (callBackData.equals("speak")) {
                 activeBot.speak();
+                deleteMessage(chatIdString, messageId);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
             }
             answerCallbackQuery.setText("Action Passed");
             sendCallBackMessage(answerCallbackQuery);
@@ -51,69 +68,39 @@ public class CommandHandler extends TelegramBot {
 
         long primitiveChatId = update.getMessage().getChatId();
         Long objectChatID = primitiveChatId;
-        String user = update.getMessage().getFrom().getFirstName();
         String messageText = "";
 
-
-        if (update.hasMessage() && update.getMessage().hasText()){
+        if (update.hasMessage() && update.getMessage().hasText()) {
             messageText = update.getMessage().getText();
         }
 
-
-        if (messageText.contains("/start")){
+        if (messageText.contains("/start")) {
             botObjects.computeIfAbsent(objectChatID, id -> new Charmagotchi(primitiveChatId));
             Charmagotchi activeBot = botObjects.get(objectChatID);
-            if (activeBot.isAlive()){
-                sendMessage("*Bark Bark*",activeBot.getBotChatId());
+            if (activeBot.isAlive()) {
+                sendMessage("*Bark Bark*", activeBot.getBotChatId());
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getStatsMessage());
             } else {
                 activeBot.startCharmagotchi();
-                inLineButtons(objectChatID);
+                InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+                sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getStatsMessage());
             }
         }
-        if (messageText.contains("/killCharlie")){
+        if (messageText.contains("/killCharlie")) {
             Charmagotchi activeBot = botObjects.get(objectChatID);
             activeBot.killCharlie();
             botObjects.remove(objectChatID);
         }
-        if (messageText.contains("/playball")){
+
+        if (messageText.contains("/charlie")) {
             Charmagotchi activeBot = botObjects.get(objectChatID);
-            if (activeBot.isAsleep()){
-                sendMessage("This is a message",activeBot.getBotChatId());
-            } else {
-                activeBot.playBall();
-            }
-        }
-        if (messageText.contains("/stats")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.showStats();
-        }
-        if (messageText.contains("/meal")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.feedMeal();
-        }
-        if (messageText.contains("/treat")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.giveTreat();
-        }
-        if (messageText.contains("/speak")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.speak();
-        }
-        if (messageText.contains("/sleep")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.sendToBed(8);
-        }
-        if (messageText.contains("/walk")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.goForWalk();
-        }
-        if (messageText.contains("/Game")){
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            inLineButtons(objectChatID);
+            InlineKeyboardMarkup keyboardMarkup = inLineButtons(activeBot.getBotChatId());
+            sendInlineKeyboard(activeBot.getBotChatId(), keyboardMarkup, activeBot.getActionMessage());
+
         }
     }
-    public void inLineButtons(long objectChatID){
-        Charmagotchi activeBot = botObjects.get(objectChatID);
+    public InlineKeyboardMarkup inLineButtons(long objectChatID){
         List<InlineKeyboardButton> button = new ArrayList<>();
         InlineKeyboardButton buttonOne= new InlineKeyboardButton("buttonOne");
         InlineKeyboardButton buttonTwo= new InlineKeyboardButton("buttonTwo");
@@ -140,9 +127,7 @@ public class CommandHandler extends TelegramBot {
         button.add(buttonFive);
         button.add(buttonSix);
 
-        //List<List<InlineKeyboardButton>> Keyboard = new ArrayList<>();
         List<InlineKeyboardRow> KeyboardRows = new ArrayList<>();
-        //Keyboard.add(button);
         InlineKeyboardRow row1 = new InlineKeyboardRow(buttonOne);
         InlineKeyboardRow row2 = new InlineKeyboardRow(buttonTwo);
         InlineKeyboardRow row3 = new InlineKeyboardRow(buttonThree);
@@ -157,9 +142,7 @@ public class CommandHandler extends TelegramBot {
         KeyboardRows.add(row5);
         KeyboardRows.add(row6);
 
-
-        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(KeyboardRows);
-        sendInlineKeyboard(activeBot.getBotChatId(), inlineKeyboard,activeBot.getStatsMessage());
+        return new InlineKeyboardMarkup(KeyboardRows);
     }
 }
 
