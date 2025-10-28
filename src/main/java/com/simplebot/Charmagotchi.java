@@ -23,7 +23,6 @@ class Charmagotchi extends TelegramBot{
     private volatile boolean asleep;
     private volatile boolean cooldown;
     private final ScheduledExecutorService statsSchedular = Executors.newScheduledThreadPool(1);
-    private final ScheduledExecutorService cooldownSchedular = Executors.newScheduledThreadPool(1);
     InlineKeyboardMarkup keyboardMarkup = actionButtons(botChatId);
     StringBuilder message = new StringBuilder();
 
@@ -41,7 +40,6 @@ class Charmagotchi extends TelegramBot{
     public void startCharmagotchi(){
         startScheduler();
         statsAlerts();
-        coolDownScheduler();
         living = true;
     }
     public synchronized boolean isAlive(){
@@ -118,7 +116,7 @@ class Charmagotchi extends TelegramBot{
                 "------------------------\n" +
                 "Hunger: "+ hunger +"%"+"\n" +
                 "Happiness: "+ happiness +"%"+"\n" +
-                "Tiredness: "+ sleep +"%"+"\n" +
+                "Energy: "+ sleep +"%"+"\n" +
                 "Fitness: "+ fitness +"%"+"\n" +
                 "-------------------------\n" +
                 "Use the actions below to interact with me!\nI'll send you notifications when I need anything.");
@@ -134,7 +132,7 @@ class Charmagotchi extends TelegramBot{
                 "------------------------\n" +
                 "Hunger: "+ hunger +"%"+"\n" +
                 "Happiness: "+ happiness +"%"+"\n" +
-                "Tiredness: "+ sleep +"%"+"\n" +
+                "Energy: "+ sleep +"%"+"\n" +
                 "Fitness: "+ fitness +"%"+"\n" +
                 "-------------------------\n");
     }
@@ -150,7 +148,7 @@ class Charmagotchi extends TelegramBot{
                 "------------------------\n" +
                 "Hunger: "+ hunger +"%"+"\n" +
                 "Happiness: "+ happiness +"%"+"\n" +
-                "Tiredness: "+ sleep +"%"+"\n" +
+                "Energy: "+ sleep +"%"+"\n" +
                 "Fitness: "+ fitness +"%"+"\n" +
                 "-------------------------\n" + messageText);
     }
@@ -168,51 +166,52 @@ class Charmagotchi extends TelegramBot{
     public void startScheduler(){
         statsSchedular.scheduleAtFixedRate(()->{
             if(!asleep){
-                addToHunger(-2); System.out.println(hunger);
-                if (getHunger() <= 0){
-                    sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
-                    living = false;
-                    statsSchedular.shutdown();
-                }
+                addToHunger(-2);
+            } else {
+                addToHunger(-1);
+            }
+            if (getHunger() <= 0){
+                sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
+                living = false;
+                statsSchedular.shutdown();
+            }
+
+        }, 1, 10, TimeUnit.MINUTES);
+        statsSchedular.scheduleAtFixedRate(()->{
+            if(!asleep){
+                addToHappiness(-1);
+            }
+            if (getHappiness() <= 0){
+                sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
+                living = false;
+                statsSchedular.shutdown();
             }
         }, 1, 10, TimeUnit.MINUTES);
         statsSchedular.scheduleAtFixedRate(()->{
             if(!asleep){
-                addToHappiness(-1); System.out.println(happiness);
-                if (getHappiness() <= 0){
-                    sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
-                    living = false;
-                    statsSchedular.shutdown();
+                addToSleepiness(-1.16);
+            }  else {
+                addToSleepiness(2.08);
+                if(sleepiness >= 100){
+                    wake();
                 }
+            }
+            if (getSleepiness() <= 0){
+                sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
+                living = false;
+                statsSchedular.shutdown();
             }
         }, 1, 10, TimeUnit.MINUTES);
         statsSchedular.scheduleAtFixedRate(()->{
             if(!asleep){
-                addToSleepiness(-2); System.out.println(sleepiness);
-                if (getSleepiness() <= 0){
-                    sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
-                    living = false;
-                    statsSchedular.shutdown();
-                }
+                addToFitness(-.5);
+            }
+            if (getFitness() <= 0){
+                sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
+                living = false;
+                statsSchedular.shutdown();
             }
         }, 1, 10, TimeUnit.MINUTES);
-        statsSchedular.scheduleAtFixedRate(()->{
-            if(!asleep){
-                addToFitness(-.5); System.out.println(fitness);
-                if (getFitness() <= 0){
-                    sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
-                    living = false;
-                    statsSchedular.shutdown();
-                }
-            }
-        }, 1, 10, TimeUnit.MINUTES);
-    }
-    private void coolDownScheduler(){
-        cooldownSchedular.scheduleAtFixedRate(()->{
-            if (cooldown){
-                cooldown = false;
-            }
-        }, 0, 8, TimeUnit.SECONDS);
     }
 
     public void playBall(){
@@ -238,7 +237,7 @@ class Charmagotchi extends TelegramBot{
         if (stats[2]<=100){
             int a = getRandomInt(-5,0);
             addToSleepiness(a);
-            message.append("Charlie lost ").append(a).append(" Tiredness").append("\n");
+            message.append("Charlie lost ").append(a).append(" Energy").append("\n");
         }
         finalMessage = message.toString();
         message.setLength(0);
@@ -270,7 +269,7 @@ class Charmagotchi extends TelegramBot{
         if (stats[2]<=100){
             int a = getRandomInt(-5,0);
             addToSleepiness(a);
-            message.append("Charlie lost ").append(a).append(" Tiredness").append("\n");
+            message.append("Charlie lost ").append(a).append(" Energy").append("\n");
         }
         finalMessage = message.toString();
         message.setLength(0);
@@ -306,7 +305,6 @@ class Charmagotchi extends TelegramBot{
     }
     public void sendToBed() {
         asleep = true;
-        addToSleepiness(100);
     }
     public void wake(){
         asleep = false;
