@@ -14,10 +14,7 @@ public class CommandHandler extends TelegramBot {
     private static long lastActionTime = 0;
     private static final long coolDown = 6000;
     public void commandParse(Update update) {
-
         long currentTime = System.currentTimeMillis();
-        System.out.println(currentTime);
-        System.out.println(lastActionTime + coolDown);
         if (update.hasCallbackQuery()) {
 
             CallbackQuery callbackQuery = update.getCallbackQuery();
@@ -27,63 +24,51 @@ public class CommandHandler extends TelegramBot {
             int messageId = callbackQuery.getMessage().getMessageId();
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(callbackQuery.getId());
 
-
-                if (callBackData.equals("wake")&& activeBot.isAsleep()){
+                if (callBackData.equals("wake") && activeBot.isAsleep()){
                     activeBot.wake();
                 }
-                if(currentTime > lastActionTime + coolDown){
-
-                    if(!activeBot.isAsleep()) {
+                if(currentTime > lastActionTime + coolDown) {
+                    if(!activeBot.isAsleep() && activeBot.isAlive()){
                         if (callBackData.equals("playball")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.playBall();
                         lastActionTime = currentTime;
                         }
                         if (callBackData.equals("treat")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.giveTreat();
                         lastActionTime = currentTime;
                         }
                         if (callBackData.equals("feed")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.feedMeal();
                         lastActionTime = currentTime;
                         }
                         if (callBackData.equals("walk")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.goForWalk();
                         lastActionTime = currentTime;
                         }
                         if (callBackData.equals("bed")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.sendToBed();
-                        ReplyKeyboard  keyboard = activeBot.actionButtonMaker(activeBot.getBotChatId(), "Wake Charlie?","wake");
-                        activeBot.getSleepMessage(keyboard);
                         lastActionTime = currentTime;
                         }
                         if (callBackData.equals("speak")) {
-                        deleteMessage(chatIdString, messageId);
                         activeBot.speak();
                         lastActionTime = currentTime;
                         }
-                    } else {
-                    ReplyKeyboard  keyboard = activeBot.actionButtonMaker(activeBot.getBotChatId(), "Wake Charlie?","wake");
-                    activeBot.getSleepMessage(keyboard);
+                    } else if (activeBot.isAsleep() && activeBot.isAlive()){
+                    activeBot.getSleepMessage();
                     lastActionTime = currentTime;
                     }
                     sendCallBackMessage(answerCallbackQuery);
-                } else{
+                } else {
                     long secondsLeft = (lastActionTime - currentTime + coolDown)/1000;
                     String remainingSeconds = String.valueOf(secondsLeft);
                     answerCallbackQuery.setText("Cooldown "+ remainingSeconds +" seconds.");
                     sendCallBackMessage(answerCallbackQuery);
                 }
-
         }
-
         long primitiveChatId = update.getMessage().getChatId();
         Long objectChatID = primitiveChatId;
         String messageText = "";
+        int messageId = update.getMessage().getMessageId();
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             messageText = update.getMessage().getText();
@@ -104,14 +89,12 @@ public class CommandHandler extends TelegramBot {
             activeBot.killCharlie();
             botObjects.remove(objectChatID);
         }
-
-        if (messageText.contains("/charlie")&& currentTime > lastActionTime + coolDown) {
+        if (messageText.contains("/charlie")) {
             Charmagotchi activeBot = botObjects.get(objectChatID);
-            if (activeBot.isAsleep()){
-                ReplyKeyboard  keyboard = activeBot.actionButtonMaker(activeBot.getBotChatId(), "Wake Charlie?","wake");
-                activeBot.getSleepMessage(keyboard);
-            }else{
+            if (!activeBot.isAsleep() && activeBot.isAlive()){
                 activeBot.getActionMessage();
+            }else if(activeBot.isAsleep() && activeBot.isAlive()){
+                activeBot.getSleepMessage();
             }
             lastActionTime = currentTime;
         }

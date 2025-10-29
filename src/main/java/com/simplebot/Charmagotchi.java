@@ -15,26 +15,25 @@ import java.util.concurrent.TimeUnit;
 class Charmagotchi extends TelegramBot{
     private String finalMessage;
     private long botChatId;
+    private int messageId;
     private volatile double hunger;
     private volatile double happiness;
     private volatile double sleepiness;
     private volatile double fitness;
     private volatile boolean living;
     private volatile boolean asleep;
-    private volatile boolean cooldown;
     private final ScheduledExecutorService statsSchedular = Executors.newScheduledThreadPool(1);
     InlineKeyboardMarkup keyboardMarkup = actionButtons(botChatId);
     StringBuilder message = new StringBuilder();
 
 
     Charmagotchi(long chatId){
-        hunger = 100;
+        hunger = 50;
         happiness = 100;
-        sleepiness = 100;
+        sleepiness = 98;
         fitness = 100;
         living = false;
         asleep = false;
-        cooldown = false;
         botChatId = chatId;
     }
     public void startCharmagotchi(){
@@ -107,7 +106,7 @@ class Charmagotchi extends TelegramBot{
         long happiness = Math.round(stats[1]);
         long sleep = Math.round(stats[2]);
         long fitness = Math.round(stats[3]);
-        sendInlineKeyboard(botChatId,keyboardMarkup,
+        messageId = sendMessageAndGetMessageID(botChatId,keyboardMarkup,
                 "\\/(°ᵔᴥᵔ°)\\/"+ "\n" +
 
                 "Hello I'm Charlie! *Woof* *Woof* \n\n"  +
@@ -127,7 +126,7 @@ class Charmagotchi extends TelegramBot{
         long happiness = Math.round(stats[1]);
         long sleep = Math.round(stats[2]);
         long fitness = Math.round(stats[3]);
-        sendInlineKeyboard(botChatId,keyboardMarkup,
+        messageId = sendMessageAndGetMessageID(botChatId,keyboardMarkup,
                 "\\/(°ᵔᴥᵔ°)\\/"+ "\n" +
                 "------------------------\n" +
                 "Hunger: "+ hunger +"%"+"\n" +
@@ -142,8 +141,7 @@ class Charmagotchi extends TelegramBot{
         long happiness = Math.round(stats[1]);
         long sleep = Math.round(stats[2]);
         long fitness = Math.round(stats[3]);
-
-        sendInlineKeyboard(botChatId, keyboardMarkup,
+        editMessage(botChatId,messageId,keyboardMarkup,
                 "\\/(°ᵔᴥᵔ°)\\/"+ "\n" +
                 "------------------------\n" +
                 "Hunger: "+ hunger +"%"+"\n" +
@@ -152,8 +150,9 @@ class Charmagotchi extends TelegramBot{
                 "Fitness: "+ fitness +"%"+"\n" +
                 "-------------------------\n" + messageText);
     }
-    public void getSleepMessage(ReplyKeyboard keyboard){
-        sendInlineKeyboard(botChatId,keyboard,"\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
+    public void getSleepMessage(){
+        ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Wake Charlie?","wake");
+        messageId = sendMessageAndGetMessageID(botChatId,actionButton, "\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
     }
 
     private int getRandomInt(int a, int b) {
@@ -165,55 +164,51 @@ class Charmagotchi extends TelegramBot{
 
     public void startScheduler(){
         statsSchedular.scheduleAtFixedRate(()->{
-            if(!asleep){
-                addToHunger(-2);
-            } else {
-                addToHunger(-1);
-            }
-            if (getHunger() <= 0){
+            if (living && getHunger() <= 0){
                 sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
                 living = false;
-                statsSchedular.shutdown();
             }
-
-        }, 1, 10, TimeUnit.MINUTES);
-        statsSchedular.scheduleAtFixedRate(()->{
-            if(!asleep){
-                addToHappiness(-1);
-            }
-            if (getHappiness() <= 0){
+            if (living && getHappiness() <= 0){
                 sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
                 living = false;
-                statsSchedular.shutdown();
+            }
+            if (living && getSleepiness() <= 0){
+                sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
+                living = false;
+            }
+            if (living && getFitness() <= 0){
+                sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
+                living = false;
+            }
+        },0,10,TimeUnit.SECONDS);
+        statsSchedular.scheduleAtFixedRate(()->{
+            if(!asleep && living){
+                addToHunger(-2);
+            } else if (asleep && living) {
+                addToHunger(-1);
             }
         }, 1, 10, TimeUnit.MINUTES);
         statsSchedular.scheduleAtFixedRate(()->{
-            if(!asleep){
+            if(!asleep && living){
+                addToHappiness(-1);
+            }
+        }, 1, 10, TimeUnit.MINUTES);
+        statsSchedular.scheduleAtFixedRate(()->{
+            if(!asleep && living){
                 addToSleepiness(-1.16);
-            }  else {
+            }  else if (asleep && living) {
                 addToSleepiness(2.08);
                 if(sleepiness >= 100){
                     wake();
                 }
             }
-            if (getSleepiness() <= 0){
-                sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
-                living = false;
-                statsSchedular.shutdown();
-            }
         }, 1, 10, TimeUnit.MINUTES);
         statsSchedular.scheduleAtFixedRate(()->{
-            if(!asleep){
+            if(!asleep && living){
                 addToFitness(-.5);
-            }
-            if (getFitness() <= 0){
-                sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
-                living = false;
-                statsSchedular.shutdown();
             }
         }, 1, 10, TimeUnit.MINUTES);
     }
-
     public void playBall(){
         switch (getRandomInt(1,2)){
             case 1:
@@ -277,18 +272,28 @@ class Charmagotchi extends TelegramBot{
 
     }
     public void feedMeal(){
-        addToHunger(100);
-        addToHappiness(7);
-        switch (getRandomInt(0,2)){
-            case 0:
-                message.append("OM NOM NOM!\n");
-                break;
-            case 1:
-                message.append("MUNCH! CRUNCH! MUNCH!\n");
-                break;
-            case 2:
-                message.append("NOM NOM NOM!\n");
-                break;
+        while (hunger < 100){
+            addToHunger(10);
+            addToHappiness(7);
+            switch (getRandomInt(0,2)){
+                case 0:
+                    message.append("OM NOM NOM!\n");
+                    break;
+                case 1:
+                    message.append("MUNCH! CRUNCH! MUNCH!\n");
+                    break;
+                case 2:
+                    message.append("NOM NOM NOM!\n");
+                    break;
+            }
+            try{
+                Thread.sleep(800);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+            finalMessage = message.toString();
+            message.setLength(0);
+            getActionMessage(finalMessage);
         }
         message.append("Thank you human! I feel well fed.");
         finalMessage = message.toString();
@@ -305,12 +310,12 @@ class Charmagotchi extends TelegramBot{
     }
     public void sendToBed() {
         asleep = true;
+        InlineKeyboardMarkup actionButton = actionButtonMaker(botChatId,"Wake Charlie?","wake");
+        editMessage(botChatId,messageId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
     }
     public void wake(){
         asleep = false;
-        message.append("Charlie feels refreshed!");
-        finalMessage = message.toString();
-        getActionMessage(finalMessage);
+        getActionMessage("*Stretch*");
         message.setLength(0);
     }
     public void speak(){
@@ -336,43 +341,43 @@ class Charmagotchi extends TelegramBot{
     }
     public void statsAlerts(){
         statsSchedular.scheduleAtFixedRate(()->{
-            if (hunger < 50 && hunger > 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm Hungry!");
+            if (living){
+                if (hunger < 50 && hunger > 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm Hungry!");
+                }
+                if (hunger < 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nIs it dinner time yet?");
+                }
+                if (happiness < 50 && happiness > 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","playball");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI want to play catch :D");
+                }
+                if (happiness < 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","play");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nWhy wont you play with me? :(");
+                }
+                if (sleepiness < 50 && sleepiness > 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\n*Yawn* It's time for a nap");
+                }
+                if (sleepiness < 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm ready for bed");
+                }
+                if (fitness < 50 && fitness > 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nCan we go for a walk? :D");
+                }
+                if (fitness < 20){
+                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI've been cooped up all day! please take me for a walk :'(");
+                }
             }
-            if (hunger < 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nIs it dinner time yet?");
-            }
-            if (happiness < 50 && happiness > 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","playball");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI want to play catch :D");
-            }
-            if (happiness < 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","play");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nWhy wont you play with me? :(");
-            }
-            if (sleepiness < 50 && sleepiness > 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\n*Yawn* It's time for a nap");
-            }
-            if (sleepiness < 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm ready for bed");
-            }
-            if (fitness < 50 && fitness > 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nCan we go for a walk? :D");
-            }
-            if (fitness < 20){
-                ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
-                sendInlineKeyboard(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI've been cooped up all day! please take me for a walk :'(");
-            }
-
         },1,20,TimeUnit.MINUTES);
     }
     public InlineKeyboardMarkup actionButtons(long objectChatID){
-        //List<InlineKeyboardButton> button = new ArrayList<>();
         InlineKeyboardButton buttonOne= new InlineKeyboardButton("buttonOne");
         InlineKeyboardButton buttonTwo= new InlineKeyboardButton("buttonTwo");
         InlineKeyboardButton buttonThree= new InlineKeyboardButton("buttonThree");
@@ -391,12 +396,6 @@ class Charmagotchi extends TelegramBot{
         buttonFive.setCallbackData("bed");
         buttonSix.setText("Speak");
         buttonSix.setCallbackData("speak");
-//        button.add(buttonOne);
-//        button.add(buttonTwo);
-//        button.add(buttonThree);
-//        button.add(buttonFour);
-//        button.add(buttonFive);
-//        button.add(buttonSix);
 
         List<InlineKeyboardRow> KeyboardRows = new ArrayList<>();
         InlineKeyboardRow row1 = new InlineKeyboardRow(buttonOne);
@@ -427,6 +426,7 @@ class Charmagotchi extends TelegramBot{
 
         return new InlineKeyboardMarkup(KeyboardRows);
     }
+
 }
 
     
