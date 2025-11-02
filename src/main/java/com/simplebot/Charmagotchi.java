@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.simplebot.DataHandler.*;
 
 public class Charmagotchi extends TelegramBot  {
 
@@ -25,7 +24,7 @@ public class Charmagotchi extends TelegramBot  {
     private volatile boolean living;
     private volatile boolean asleep;
     private final ScheduledExecutorService statsSchedular = Executors.newScheduledThreadPool(1);
-    InlineKeyboardMarkup keyboardMarkup = actionButtons(botChatId);
+    InlineKeyboardMarkup keyboardMarkup = actionButtons();
     StringBuilder message = new StringBuilder();
 
     Charmagotchi(long chatId){
@@ -168,7 +167,7 @@ public class Charmagotchi extends TelegramBot  {
                 "-------------------------\n" + messageText);
     }
     public void getSleepMessage(){
-        ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Wake Charlie?","wake");
+        ReplyKeyboard actionButton = actionButtonMaker("Wake Charlie?","wake");
         messageId = sendMessageAndGetMessageID(botChatId,actionButton, "\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
     }
 
@@ -236,7 +235,7 @@ public class Charmagotchi extends TelegramBot  {
                 message.append(userFirstName).append(" throws the ball. Charlie catches it and brings it back\n");
                 break;
             case 2:
-                message.append(userFirstName).append(" You throws the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back\n");
+                message.append(userFirstName).append(" throws the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back\n");
                 break;
         }
         double[] stats = getStatsArray();
@@ -316,7 +315,7 @@ public class Charmagotchi extends TelegramBot  {
             message.setLength(0);
             getActionMessage(finalMessage);
         }
-        message.append("Thank you " + userFirstName + " I feel well fed.");
+        message.append("Thank you ").append(userFirstName).append(" I feel well fed.");
         finalMessage = message.toString();
         message.setLength(0);
         getActionMessage(finalMessage);
@@ -331,7 +330,7 @@ public class Charmagotchi extends TelegramBot  {
     }
     public void sendToBed() {
         asleep = true;
-        InlineKeyboardMarkup actionButton = actionButtonMaker(botChatId,"Wake Charlie?","wake");
+        InlineKeyboardMarkup actionButton = actionButtonMaker("Wake Charlie?","wake");
         editMessage(botChatId,messageId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
         DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
     }
@@ -369,41 +368,41 @@ public class Charmagotchi extends TelegramBot  {
         statsSchedular.scheduleAtFixedRate(()->{
             if (living && !asleep){
                 if (hunger < 50 && hunger > 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
+                    ReplyKeyboard actionButton = actionButtonMaker("Feed","feed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm Hungry!");
                 }
                 if (hunger < 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Feed","feed");
+                    ReplyKeyboard actionButton = actionButtonMaker("Feed","feed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nIs it dinner time yet?");
                 }
                 if (happiness < 50 && happiness > 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","playball");
+                    ReplyKeyboard actionButton = actionButtonMaker("Play Ball","playball");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI want to play catch :D");
                 }
                 if (happiness < 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Play Ball","play");
+                    ReplyKeyboard actionButton = actionButtonMaker("Play Ball","play");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nWhy wont you play with me? :(");
                 }
                 if (sleepiness < 50 && sleepiness > 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
+                    ReplyKeyboard actionButton = actionButtonMaker("Send to bed","bed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\n*Yawn* It's time for a nap");
                 }
                 if (sleepiness < 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Send to bed","bed");
+                    ReplyKeyboard actionButton = actionButtonMaker("Send to bed","bed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm ready for bed");
                 }
                 if (fitness < 50 && fitness > 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
+                    ReplyKeyboard actionButton = actionButtonMaker("Go for walk","walk");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nCan we go for a walk? :D");
                 }
                 if (fitness < 20){
-                    ReplyKeyboard actionButton = actionButtonMaker(botChatId,"Go for walk","walk");
+                    ReplyKeyboard actionButton = actionButtonMaker("Go for walk","walk");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI've been cooped up all day! please take me for a walk :'(");
                 }
             }
         },1,20,TimeUnit.MINUTES);
     }
-    public InlineKeyboardMarkup actionButtons(long objectChatID){
+    public InlineKeyboardMarkup actionButtons(){
         InlineKeyboardButton buttonOne= new InlineKeyboardButton("buttonOne");
         InlineKeyboardButton buttonTwo= new InlineKeyboardButton("buttonTwo");
         InlineKeyboardButton buttonThree= new InlineKeyboardButton("buttonThree");
@@ -440,7 +439,7 @@ public class Charmagotchi extends TelegramBot  {
 
         return new InlineKeyboardMarkup(KeyboardRows);
     }
-    public InlineKeyboardMarkup actionButtonMaker(long objectChatID,String buttonText,String callback){
+    public InlineKeyboardMarkup actionButtonMaker(String buttonText,String callback){
         InlineKeyboardButton buttonOne= new InlineKeyboardButton(buttonText);
         buttonOne.setText(buttonText);
         buttonOne.setCallbackData(callback);

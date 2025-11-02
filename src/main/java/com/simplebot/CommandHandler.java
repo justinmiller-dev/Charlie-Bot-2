@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class CommandHandler extends TelegramBot {
 
-    private static HashMap<Long, Charmagotchi> botObjects = DataHandler.getBots();
+    private static final HashMap<Long, Charmagotchi> botObjects = DataHandler.getBots();
     private static long lastActionTime = 0;
     private static final long coolDown = 6000;
 
@@ -86,7 +86,7 @@ public class CommandHandler extends TelegramBot {
             primitiveChatId = 0;
         }
         if (messageText.contains("/start")) {
-            botObjects.computeIfAbsent(objectChatID, id -> new Charmagotchi(primitiveChatId));
+            botObjects.computeIfAbsent(objectChatID, _ -> new Charmagotchi(primitiveChatId));
             Charmagotchi activeBot = botObjects.get(objectChatID);
             if (activeBot.isAlive()) {
                 sendMessage("CharlieBot is already running use the command /charlie to call him.", activeBot.getBotChatId());

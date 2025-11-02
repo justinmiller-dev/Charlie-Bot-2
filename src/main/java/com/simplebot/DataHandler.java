@@ -1,10 +1,8 @@
 package com.simplebot;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.util.HashMap;
-import java.util.Properties;
+
 
 public class DataHandler {
 
@@ -15,27 +13,17 @@ public class DataHandler {
     }
 
     public static Connection connectToDatabase() {
-        Properties prop = new Properties();
-        String url;
-        String username;
-        String password;
         Connection connection = null;
         try{
-            FileInputStream fileInputStream = new FileInputStream("src\\main\\resources\\.properties");
-            prop.load(fileInputStream);
-            url = prop.getProperty("db.url");
-            username = prop.getProperty("db.username");
-            password = prop.getProperty("db.password");
-            fileInputStream.close();
             System.out.println("Attempting to connect to Database...");
-            connection = DriverManager.getConnection(url,username,password);
+            connection = DriverManager.getConnection(Main.getDbURL(),Main.getDBUsername(),Main.getDbPassword());
             if (connection.isValid(10)){
                 System.out.println("Connected");
             } else {
                 System.out.println("Connection Failed");
             }
-        }catch (IOException | SQLException e){
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Error reading resource: " + e.getMessage());
         }
         return connection;
     }
@@ -87,33 +75,6 @@ public class DataHandler {
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0){
                 System.out.println("New bot added to database");
-            }
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
-
-    }
-    public static void updateBotData(Connection con, Charmagotchi activeBot){
-        double hunger = activeBot.getHunger();
-        double happiness = activeBot.getHappiness();
-        double sleepiness = activeBot.getSleepiness();
-        double fitness = activeBot.getFitness();
-        double chatId = activeBot.getBotChatId();
-        boolean alive = activeBot.isAlive();
-        boolean asleep = activeBot.isAsleep();
-
-        String query = "UPDATE bots SET statHunger = ?, statHappiness = ?, statSleepiness = ?, statFitness = ?, isAlive = ?, isAsleep = ? WHERE idBots = ?";
-        try(PreparedStatement preparedStatement = con.prepareStatement(query)){
-            preparedStatement.setDouble(1,hunger);
-            preparedStatement.setDouble(2,happiness);
-            preparedStatement.setDouble(3,sleepiness);
-            preparedStatement.setDouble(4,fitness);
-            preparedStatement.setBoolean(5,alive);
-            preparedStatement.setBoolean(6,asleep);
-            preparedStatement.setDouble(7,chatId);
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0){
-                System.out.println("Bot data updated");
             }
         } catch (SQLException e){
             e.printStackTrace();

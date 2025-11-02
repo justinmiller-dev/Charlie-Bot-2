@@ -3,25 +3,32 @@ package com.simplebot;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 import java.util.Properties;
 
 
 public class Main {
     private static String botToken;
+    private static String url;
+    private static String username;
+    private static String password;
     public static void main(String[] args) {
         Properties prop = new Properties();
+        InputStream input;
+
         try{
-            FileInputStream fileInputStream = new FileInputStream("src\\main\\resources\\.properties");
-            prop.load(fileInputStream);
-            botToken = prop.getProperty("api.token");
-            fileInputStream.close();
-            DataHandler.initializeBotMap(DataHandler.connectToDatabase());
-        }catch (IOException e){
-            e.printStackTrace();
+             input = Main.class.getResourceAsStream("/.properties");
+             prop.load(input);
+             botToken = prop.getProperty("api.token");
+             username = prop.getProperty("db.username");
+             password = prop.getProperty("db.password");
+             url = prop.getProperty("db.url");
+             DataHandler.initializeBotMap(DataHandler.connectToDatabase());
+        } catch (IOException e) {
+            System.err.println("Error reading resource: " + e.getMessage());
         }
+
         try {
             @SuppressWarnings("resource")
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
@@ -32,5 +39,14 @@ public class Main {
     }
     public static String getBotToken() {
         return botToken;
+    }
+    public static String getDBUsername() {
+        return username;
+    }
+    public static String getDbPassword() {
+        return password;
+    }
+    public static String getDbURL() {
+        return url;
     }
 }
