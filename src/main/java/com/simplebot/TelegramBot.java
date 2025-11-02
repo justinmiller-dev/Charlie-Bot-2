@@ -33,9 +33,9 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         .text(messageText)
         .build();
         try {
-            telegramClient.execute(message).getMessageId();
+            telegramClient.execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            System.out.println("Message failed to send");
         }
     }
     public void sendMessage(long chatId, ReplyKeyboard replyKeyboard, String messageText) {
@@ -48,7 +48,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             message.setReplyMarkup(replyKeyboard);
             telegramClient.execute(message);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            System.out.println("Message with keyboard failed to send");
         }
     }
     public int sendMessageAndGetMessageID(long chatId, ReplyKeyboard replyKeyboard, String messageText) {
@@ -62,7 +62,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             message.setReplyMarkup(replyKeyboard);
             messageId = telegramClient.execute(message).getMessageId();
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            System.out.println("sendMessageAndGetMessageID with keyboard failed to send");
         }
         return messageId;
     }
@@ -76,7 +76,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             messageId = telegramClient.execute(message).getMessageId();
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            System.out.println("sendMessageAndGetMessageID failed to send");
         }
         return messageId;
     }
@@ -85,7 +85,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             telegramClient.execute(callBack);
         } catch (TelegramApiException e){
-            e.printStackTrace();
+            System.out.println("Message callback failed to send");
         }
     }
     public void deleteMessage(String chatId, int messageId){
@@ -93,7 +93,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             telegramClient.execute(deleteMessage);
         } catch (TelegramApiException e){
-            e.printStackTrace();
+            System.out.println("deleteMessage failed");
         }
     }
     public void editMessage(long chatId, int messageId, InlineKeyboardMarkup keyboard, String message){
@@ -106,7 +106,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try{
             telegramClient.execute(editMessageText);
         } catch (TelegramApiException e){
-            e.printStackTrace();
+            System.out.println("editMessage failed");
         }
     }
     public void sendChatAction(String chatId){
@@ -114,7 +114,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try{
             telegramClient.execute(chatAction);
         } catch (TelegramApiException e){
-            e.printStackTrace();
+            System.out.println("editMessage failed");
         }
     }
 }

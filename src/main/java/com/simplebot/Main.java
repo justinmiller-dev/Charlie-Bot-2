@@ -3,9 +3,22 @@ package com.simplebot;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 public class Main {
-    private static final String botToken = System.getenv("apiToken");
+    private static String botToken;
     public static void main(String[] args) {
+        Properties prop = new Properties();
+        try{
+            FileInputStream fileInputStream = new FileInputStream("src\\main\\resources\\.properties");
+            prop.load(fileInputStream);
+            botToken = prop.getProperty("devApi.token");
+            fileInputStream.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
         try {
             @SuppressWarnings("resource")
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();

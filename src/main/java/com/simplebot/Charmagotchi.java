@@ -4,7 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,7 +11,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-class Charmagotchi extends TelegramBot{
+
+class Charmagotchi extends TelegramBot  {
+
     private String finalMessage;
     private long botChatId;
     private int messageId;
@@ -26,11 +27,19 @@ class Charmagotchi extends TelegramBot{
     InlineKeyboardMarkup keyboardMarkup = actionButtons(botChatId);
     StringBuilder message = new StringBuilder();
 
-
     Charmagotchi(long chatId){
-        hunger = 50;
+        hunger = 100;
         happiness = 100;
-        sleepiness = 98;
+        sleepiness = 100;
+        fitness = 100;
+        living = false;
+        asleep = false;
+        botChatId = chatId;
+    }
+    Charmagotchi(double inputHunger,double inputHappiness ,double inputEnergy, double inputFitness, long chatId){
+        hunger = 100;
+        happiness = 100;
+        sleepiness = 100;
         fitness = 100;
         living = false;
         asleep = false;
@@ -165,19 +174,19 @@ class Charmagotchi extends TelegramBot{
     public void startScheduler(){
         statsSchedular.scheduleAtFixedRate(()->{
             if (living && getHunger() <= 0){
-                sendMessage("Charlie has starved to death. I hope you're happy >:(",botChatId);
+                sendMessage("Charlie has starved to death. I hope you're all happy >:(",botChatId);
                 living = false;
             }
             if (living && getHappiness() <= 0){
-                sendMessage("Charlie has died of sadness. I hope you're happy >:(",botChatId);
+                sendMessage("Charlie has died of sadness. I hope you're all happy >:(",botChatId);
                 living = false;
             }
             if (living && getSleepiness() <= 0){
-                sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're happy >:(",botChatId);
+                sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're all happy >:(",botChatId);
                 living = false;
             }
             if (living && getFitness() <= 0){
-                sendMessage("Charlie's heart gave out due to weakness. I hope you're happy >:(",botChatId);
+                sendMessage("Charlie's heart gave out due to weakness. I hope you're all happy >:(",botChatId);
                 living = false;
             }
         },0,10,TimeUnit.SECONDS);
@@ -209,13 +218,13 @@ class Charmagotchi extends TelegramBot{
             }
         }, 1, 10, TimeUnit.MINUTES);
     }
-    public void playBall(){
+    public void playBall(String userFirstName){
         switch (getRandomInt(1,2)){
             case 1:
-                message.append("You throw the ball. Charlie catches it and brings it back\n");
+                message.append(userFirstName).append(" throws the ball. Charlie catches it and brings it back\n");
                 break;
             case 2:
-                message.append("You throw the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back\n");
+                message.append(userFirstName).append(" You throws the ball. Charlie misses the ball and it rolls away. He picks it up and brings it back\n");
                 break;
         }
         double[] stats = getStatsArray();
@@ -238,16 +247,16 @@ class Charmagotchi extends TelegramBot{
         message.setLength(0);
         getActionMessage(finalMessage);
     }
-    public void goForWalk(){
+    public void goForWalk(String userFirstName){
         switch (getRandomInt(1,3)){
             case 1:
-                message.append("You go for a walk around the park. Charlie sees a squirrel and chases it up a tree.\n");
+                message.append(userFirstName).append(" and Charlie go for a walk around the park. Charlie sees a squirrel and chases it up a tree.\n");
                 break;
             case 2:
-                message.append("You go for a walk around town. Charlie makes a new friend.\n");
+                message.append(userFirstName).append(" and Charlie go for a walk around town. Charlie makes a new friend.\n");
                 break;
             case 3:
-                message.append("You go for a walk around the park. It's fun but uneventful.\n");
+                message.append(userFirstName).append(" and Charlie go for a walk around the park. It's fun but uneventful.\n");
                 break;
         }
         double[] stats = getStatsArray();
@@ -271,7 +280,7 @@ class Charmagotchi extends TelegramBot{
         getActionMessage(finalMessage);
 
     }
-    public void feedMeal(){
+    public void feedMeal(String userFirstName){
         while (hunger < 100){
             addToHunger(10);
             addToHappiness(7);
@@ -295,7 +304,7 @@ class Charmagotchi extends TelegramBot{
             message.setLength(0);
             getActionMessage(finalMessage);
         }
-        message.append("Thank you human! I feel well fed.");
+        message.append("Thank you " + userFirstName + " I feel well fed.");
         finalMessage = message.toString();
         message.setLength(0);
         getActionMessage(finalMessage);
@@ -334,8 +343,10 @@ class Charmagotchi extends TelegramBot{
         getActionMessage(finalMessage);
         message.setLength(0);
     }
-    public void killCharlie(){
-        sendMessage("You are a horrible person... That's what it says... a horrible person...",botChatId);
+    public void killCharlie(String userFistName){
+        sendMessage("With a sinister look in your eye and pure evil in your heart you " +
+                "line up the barrel of your 12 gauge to the base of charlie's forehead. Without a moments hesitation you " +
+                "pull the trigger. *BLAM* the shot rings out across the room. How could you be so cruel " + userFistName + ".",botChatId);
         living = false;
         statsSchedular.shutdown();
     }
@@ -426,6 +437,7 @@ class Charmagotchi extends TelegramBot{
 
         return new InlineKeyboardMarkup(KeyboardRows);
     }
+
 
 }
 
