@@ -4,7 +4,7 @@ Charmagotchi is an interactive pet bot for the popular messaging platform Telegr
 
 ## Current Goals
 - [x] Working prototype 
-- [ ] Persistent stat keeping
+- [x] Persistent stat keeping
 - [x]  Multiple chat support
 - [ ] Add Life cycle
 - [ ] Add Minigame
