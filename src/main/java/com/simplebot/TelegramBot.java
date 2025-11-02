@@ -18,8 +18,6 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient = new OkHttpTelegramClient(Main.getBotToken());
 
-
-
     @Override
     public void consume(Update message) {
         MessageHandler messageHandler = new MessageHandler();
