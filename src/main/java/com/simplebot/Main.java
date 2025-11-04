@@ -20,10 +20,10 @@ public class Main {
         try{
              input = Main.class.getResourceAsStream("/.properties");
              prop.load(input);
-             botToken = prop.getProperty("api.token");
+             botToken = prop.getProperty("devApi.token");
              username = prop.getProperty("db.username");
              password = prop.getProperty("db.password");
-             url = prop.getProperty("db.url");
+             url = prop.getProperty("db.devurl");
              DataHandler.initializeBotMap(DataHandler.connectToDatabase());
         } catch (IOException e) {
             System.err.println("Error reading resource: " + e.getMessage());

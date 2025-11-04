@@ -4,6 +4,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -26,6 +28,7 @@ public class Charmagotchi extends TelegramBot  {
     private final ScheduledExecutorService statsSchedular = Executors.newScheduledThreadPool(1);
     InlineKeyboardMarkup keyboardMarkup = actionButtons();
     StringBuilder message = new StringBuilder();
+    Connection database = DataHandler.connectToDatabase();
 
     Charmagotchi(long chatId){
         hunger = 100;
@@ -52,7 +55,7 @@ public class Charmagotchi extends TelegramBot  {
         startScheduler();
         statsAlerts();
         living = true;
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public synchronized boolean isAlive(){
         return living;
@@ -66,7 +69,7 @@ public class Charmagotchi extends TelegramBot  {
         } else {
             hunger = 100;
         }
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public synchronized void addToHappiness(double a){
         if (happiness <= 100 && happiness + a <= 100){
@@ -74,7 +77,7 @@ public class Charmagotchi extends TelegramBot  {
         } else {
             happiness = 100;
         }
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public synchronized void addToSleepiness(double a){
         if (sleepiness <= 100 && sleepiness + a <= 100){
@@ -82,7 +85,7 @@ public class Charmagotchi extends TelegramBot  {
         } else {
             sleepiness = 100;
         }
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public synchronized void addToFitness(double a){
         if (fitness <= 100 && fitness + a <= 100){
@@ -90,7 +93,7 @@ public class Charmagotchi extends TelegramBot  {
         } else {
             fitness = 100;
         }
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public double getHunger(){
         return hunger;
@@ -183,29 +186,29 @@ public class Charmagotchi extends TelegramBot  {
             if (living && getHunger() <= 0){
                 sendMessage("Charlie has starved to death. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
             }
             if (living && getHappiness() <= 0){
                 sendMessage("Charlie has died of sadness. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
             }
             if (living && getSleepiness() <= 0){
                 sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
             }
             if (living && getFitness() <= 0){
                 sendMessage("Charlie's heart gave out due to weakness. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
             }
         },0,10,TimeUnit.SECONDS);
         statsSchedular.scheduleAtFixedRate(()->{
             if(!asleep && living){
                 addToHunger(-2);
             } else if (asleep && living) {
-                addToHunger(-1);
+                addToHunger(-0.5);
             }
         }, 1, 10, TimeUnit.MINUTES);
         statsSchedular.scheduleAtFixedRate(()->{
@@ -332,13 +335,13 @@ public class Charmagotchi extends TelegramBot  {
         asleep = true;
         InlineKeyboardMarkup actionButton = actionButtonMaker("Wake Charlie?","wake");
         editMessage(botChatId,messageId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nZZZzZZzzZZZ");
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public void wake(){
         asleep = false;
         getActionMessage("*Stretch*");
         message.setLength(0);
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public void speak(){
         switch (getRandomInt(0,2)){
@@ -362,16 +365,16 @@ public class Charmagotchi extends TelegramBot  {
                 "pull the trigger. *BLAM* the shot rings out across the room. How could you be so cruel " + userFistName + ".",botChatId);
         living = false;
         statsSchedular.shutdown();
-        DataHandler.updateBotData(DataHandler.connectToDatabase(),getStatsArray(),botChatId,asleep,living);
+        DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
     }
     public void statsAlerts(){
         statsSchedular.scheduleAtFixedRate(()->{
             if (living && !asleep){
-                if (hunger < 50 && hunger > 20){
+                if (hunger < 20 && hunger > 10){
                     ReplyKeyboard actionButton = actionButtonMaker("Feed","feed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm Hungry!");
                 }
-                if (hunger < 20){
+                if (hunger < 10){
                     ReplyKeyboard actionButton = actionButtonMaker("Feed","feed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nIs it dinner time yet?");
                 }
@@ -383,13 +386,13 @@ public class Charmagotchi extends TelegramBot  {
                     ReplyKeyboard actionButton = actionButtonMaker("Play Ball","play");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nWhy wont you play with me? :(");
                 }
-                if (sleepiness < 50 && sleepiness > 20){
+                if (sleepiness < 20 && sleepiness > 10){
                     ReplyKeyboard actionButton = actionButtonMaker("Send to bed","bed");
                     messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\n*Yawn* It's time for a nap");
                 }
-                if (sleepiness < 20){
+                if (sleepiness < 10){
                     ReplyKeyboard actionButton = actionButtonMaker("Send to bed","bed");
-                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm ready for bed");
+                    messageId = sendMessageAndGetMessageID(botChatId,actionButton,"\\/(°ᵔᴥᵔ°)\\/\nI'm really sleepy.");
                 }
                 if (fitness < 50 && fitness > 20){
                     ReplyKeyboard actionButton = actionButtonMaker("Go for walk","walk");
