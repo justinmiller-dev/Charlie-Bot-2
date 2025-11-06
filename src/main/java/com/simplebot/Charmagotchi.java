@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class Charmagotchi extends TelegramBot  {
 
     private String finalMessage;
-    private long botChatId;
+    private final long botChatId;
     private int messageId;
     private volatile double hunger;
     private volatile double happiness;
@@ -186,22 +186,22 @@ public class Charmagotchi extends TelegramBot  {
             if (living && getHunger() <= 0){
                 sendMessage("Charlie has starved to death. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
+                DataHandler.deleteBotData(database,botChatId);
             }
             if (living && getHappiness() <= 0){
                 sendMessage("Charlie has died of sadness. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
+                DataHandler.deleteBotData(database,botChatId);
             }
             if (living && getSleepiness() <= 0){
                 sendMessage("Charlie has gone insane and died due to lack of sleep. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
+                DataHandler.deleteBotData(database,botChatId);
             }
             if (living && getFitness() <= 0){
                 sendMessage("Charlie's heart gave out due to weakness. I hope you're all happy >:(",botChatId);
                 living = false;
-                DataHandler.updateBotData(database,getStatsArray(),botChatId,asleep,living);
+                DataHandler.deleteBotData(database,botChatId);
             }
         },0,10,TimeUnit.SECONDS);
         statsSchedular.scheduleAtFixedRate(()->{

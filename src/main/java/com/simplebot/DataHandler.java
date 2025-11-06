@@ -99,5 +99,17 @@ public class DataHandler {
             e.printStackTrace();
         }
     }
+    public static void deleteBotData(Connection con, double inChatId){
+        String query = "DELETE FROM bots WHERE idBots = ?";
+        try(PreparedStatement preparedStatement = con.prepareStatement(query)){
+            preparedStatement.setDouble(1,inChatId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0){
+                System.out.println("Bot data deleted");
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
 
 }

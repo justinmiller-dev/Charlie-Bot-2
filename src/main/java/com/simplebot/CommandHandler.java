@@ -110,6 +110,9 @@ public class CommandHandler extends TelegramBot {
             }
             lastActionTime = currentTime;
         }
+        if (messageText.contains("/deletebot")){
+            //DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
+        }
     }
 }
 

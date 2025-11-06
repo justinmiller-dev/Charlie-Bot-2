@@ -20,7 +20,7 @@ public class Main {
         try{
              input = Main.class.getResourceAsStream("/.properties");
              prop.load(input);
-             botToken = prop.getProperty("devApi.token");
+             botToken = prop.getProperty("devapi.token");
              username = prop.getProperty("db.username");
              password = prop.getProperty("db.password");
              url = prop.getProperty("db.devurl");
