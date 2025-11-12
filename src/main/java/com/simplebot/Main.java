@@ -27,7 +27,6 @@ public class Main {
         } catch (IOException e) {
             System.err.println("Error reading resource: " + e.getMessage());
         }
-
         try {
             @SuppressWarnings("resource")
             TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();

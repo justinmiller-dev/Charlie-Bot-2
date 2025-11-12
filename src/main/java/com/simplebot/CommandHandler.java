@@ -8,14 +8,12 @@ import java.sql.*;
 import java.util.HashMap;
 
 
-
-
-
 public class CommandHandler extends TelegramBot {
 
     private static final HashMap<Long, Charmagotchi> botObjects = DataHandler.getBots();
     private static long lastActionTime = 0;
     private static final long coolDown = 6000;
+    private final String botUsername = getBotUsername();
 
     public void commandParse(Update update) {
         long currentTime = System.currentTimeMillis();
@@ -72,44 +70,74 @@ public class CommandHandler extends TelegramBot {
         Long objectChatID = 0L;
         String messageText = "";
         String userFistName = "";
+        String chatType = "";
 
         if (update.getMessage() != null){
             primitiveChatId = update.getMessage().getChatId();
             objectChatID = primitiveChatId;
             userFistName = update.getMessage().getFrom().getFirstName();
+            chatType = update.getMessage().getChat().getType();
             if (update.hasMessage() && update.getMessage().hasText()) {
                 messageText = update.getMessage().getText();
             }
         } else {
             primitiveChatId = 0;
         }
-        if (messageText.contains("/start")) {
-            botObjects.computeIfAbsent(objectChatID, _ -> new Charmagotchi(primitiveChatId));
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            if (activeBot.isAlive()) {
-                sendMessage("CharlieBot is already running use the command /charlie to call him.", activeBot.getBotChatId());
-            } else {
-                activeBot.startCharmagotchi();
-                activeBot.getStartMessage();
-                DataHandler.insertNewBot(DataHandler.connectToDatabase(),activeBot);
+        if (chatType.matches("group|supergroup")){
+            if (messageText.contains("/start@" + botUsername)) {
+                botObjects.computeIfAbsent(objectChatID, _ -> new Charmagotchi(primitiveChatId));
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                if (activeBot.isAlive()) {
+                    sendMessage("CharlieBot is already running use the command /charlie to call him.", activeBot.getBotChatId());
+                } else {
+                    activeBot.startCharmagotchi();
+                    activeBot.getStartMessage();
+                    DataHandler.insertNewBot(DataHandler.connectToDatabase(),activeBot);
+                }
+            }
+            if (messageText.contains("/killcharlie@" + botUsername)) {
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                activeBot.killCharlie(userFistName);
+                DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
+                botObjects.remove(objectChatID);
+            }
+            if (messageText.contains("/charlie@" + botUsername)) {
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                if (!activeBot.isAsleep() && activeBot.isAlive()){
+                    activeBot.getActionMessage();
+                }else if(activeBot.isAsleep() && activeBot.isAlive()){
+                    activeBot.getSleepMessage();
+                }
+                lastActionTime = currentTime;
+            }
+        } else if (chatType.matches("private")){
+            if (messageText.contains("/start")) {
+                botObjects.computeIfAbsent(objectChatID, _ -> new Charmagotchi(primitiveChatId));
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                if (activeBot.isAlive()) {
+                    sendMessage("CharlieBot is already running use the command /charlie to call him.", activeBot.getBotChatId());
+                } else {
+                    activeBot.startCharmagotchi();
+                    activeBot.getStartMessage();
+                    DataHandler.insertNewBot(DataHandler.connectToDatabase(),activeBot);
+                }
+            }
+            if (messageText.contains("/killcharlie")) {
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                activeBot.killCharlie(userFistName);
+                DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
+                botObjects.remove(objectChatID);
+            }
+            if (messageText.contains("/charlie")) {
+                Charmagotchi activeBot = botObjects.get(objectChatID);
+                if (!activeBot.isAsleep() && activeBot.isAlive()){
+                    activeBot.getActionMessage();
+                }else if(activeBot.isAsleep() && activeBot.isAlive()){
+                    activeBot.getSleepMessage();
+                }
+                lastActionTime = currentTime;
             }
         }
-        if (messageText.contains("/killcharlie")) {
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            activeBot.killCharlie(userFistName);
-            DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
-            botObjects.remove(objectChatID);
-        }
-        if (messageText.contains("/charlie")) {
-            Charmagotchi activeBot = botObjects.get(objectChatID);
-            if (!activeBot.isAsleep() && activeBot.isAlive()){
-                activeBot.getActionMessage();
-            }else if(activeBot.isAsleep() && activeBot.isAlive()){
-                activeBot.getSleepMessage();
-            }
-            lastActionTime = currentTime;
-        }
-
     }
 }
 

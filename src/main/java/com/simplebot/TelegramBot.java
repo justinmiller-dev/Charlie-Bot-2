@@ -3,11 +3,13 @@ package com.simplebot;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.GetMe;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -122,6 +124,17 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             System.out.println("editMessage failed");
             System.err.println(e.getMessage());
         }
+    }
+    public String getBotUsername(){
+      try{
+          GetMe getMe = new GetMe();
+          User bot = telegramClient.execute(getMe);
+          return bot.getUserName();
+      } catch (TelegramApiException e){
+          System.out.println("getBotUsername failed");
+          System.err.println(e.getMessage());
+      }
+      return null;
     }
 }
 
