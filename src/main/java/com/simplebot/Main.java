@@ -2,7 +2,6 @@ package com.simplebot;
 
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.io.*;
 import java.sql.*;
 import java.util.Properties;
@@ -20,10 +19,10 @@ public class Main {
         try{
              input = Main.class.getResourceAsStream("/.properties");
              prop.load(input);
-             botToken = prop.getProperty("devapi.token");
+             botToken = prop.getProperty("api.token");
              username = prop.getProperty("db.username");
              password = prop.getProperty("db.password");
-             url = prop.getProperty("db.devurl");
+             url = prop.getProperty("db.url");
              DataHandler.initializeBotMap(DataHandler.connectToDatabase());
         } catch (IOException e) {
             System.err.println("Error reading resource: " + e.getMessage());

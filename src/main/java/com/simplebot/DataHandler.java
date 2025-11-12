@@ -55,7 +55,8 @@ public class DataHandler {
                 System.out.println("Added Bot " + activeBot.getBotChatId() + " To hashmap");
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("Unable to connect to database");
+            System.err.println(e.getMessage());
         }
     }
 
@@ -77,7 +78,8 @@ public class DataHandler {
                 System.out.println("New bot added to database");
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("Unable to connect to database");
+            System.err.println(e.getMessage());
         }
 
     }
@@ -91,12 +93,9 @@ public class DataHandler {
             preparedStatement.setBoolean(5,inIsAlive);
             preparedStatement.setBoolean(6,inIsAsleep);
             preparedStatement.setDouble(7,inChatId);
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0){
-                System.out.println("Bot data updated");
-            }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("Unable to connect to database");
+            System.err.println(e.getMessage());
         }
     }
     public static void deleteBotData(Connection con, double inChatId){
@@ -108,7 +107,8 @@ public class DataHandler {
                 System.out.println("Bot data deleted");
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("Unable to connect to database");
+            System.err.println(e.getMessage());
         }
     }
 

@@ -7,7 +7,7 @@ public class MessageHandler extends CommandHandler{
     public void messageParse(Update update){
        if (update.hasCallbackQuery()) {
           commandParse(update);
-       } else if (update.getMessage().hasText()){
+       } else if (update.getMessage() != null){
            if (update.getMessage().getText().startsWith("/")){
                commandParse(update);
            }

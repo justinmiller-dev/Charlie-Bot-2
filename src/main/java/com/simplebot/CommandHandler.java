@@ -30,7 +30,7 @@ public class CommandHandler extends TelegramBot {
                 if (callBackData.equals("wake") && activeBot.isAsleep()){
                     activeBot.wake();
                 }
-                if(currentTime > lastActionTime + coolDown) {
+                if(currentTime >= lastActionTime + coolDown) {
                     if(!activeBot.isAsleep() && activeBot.isAlive()){
                         if (callBackData.equals("playball")) {
                         activeBot.playBall(userFirstName);
@@ -70,14 +70,12 @@ public class CommandHandler extends TelegramBot {
         }
         long primitiveChatId;
         Long objectChatID = 0L;
-        int messageId = 0;
         String messageText = "";
         String userFistName = "";
 
         if (update.getMessage() != null){
             primitiveChatId = update.getMessage().getChatId();
             objectChatID = primitiveChatId;
-            messageId = update.getMessage().getMessageId();
             userFistName = update.getMessage().getFrom().getFirstName();
             if (update.hasMessage() && update.getMessage().hasText()) {
                 messageText = update.getMessage().getText();
@@ -99,6 +97,7 @@ public class CommandHandler extends TelegramBot {
         if (messageText.contains("/killcharlie")) {
             Charmagotchi activeBot = botObjects.get(objectChatID);
             activeBot.killCharlie(userFistName);
+            DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
             botObjects.remove(objectChatID);
         }
         if (messageText.contains("/charlie")) {
@@ -110,9 +109,7 @@ public class CommandHandler extends TelegramBot {
             }
             lastActionTime = currentTime;
         }
-        if (messageText.contains("/deletebot")){
-            //DataHandler.deleteBotData(DataHandler.connectToDatabase(),objectChatID);
-        }
+
     }
 }
 
