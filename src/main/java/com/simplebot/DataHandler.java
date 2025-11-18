@@ -38,6 +38,7 @@ public class DataHandler {
         double chatId;
         boolean isAsleep;
         boolean isAlive;
+        int messageId;
 
         try(PreparedStatement preparedStatement = con.prepareStatement(query)) {
             System.out.println("Gathering bot data from database");
@@ -50,7 +51,8 @@ public class DataHandler {
                 isAlive = resultSet.getBoolean("isAlive");
                 chatId = resultSet.getDouble("idBots");
                 isAsleep = resultSet.getBoolean("isAsleep");
-                activeBot = new Charmagotchi(hunger,happiness,sleepiness,fitness, (long) chatId,isAlive,isAsleep);
+                messageId = resultSet.getInt("lastMessageId");
+                activeBot = new Charmagotchi(hunger,happiness,sleepiness,fitness, (long) chatId,isAlive,isAsleep,messageId);
                 botObjects.putIfAbsent(activeBot.getBotChatId(),activeBot);
                 System.out.println("Added Bot " + activeBot.getBotChatId() + " To hashmap");
             }
@@ -78,13 +80,13 @@ public class DataHandler {
                 System.out.println("New bot added to database");
             }
         } catch (SQLException e){
-            System.out.println("Unable to connect to database");
+            System.out.println("Insert Failed");
             System.err.println(e.getMessage());
         }
 
     }
-    public static void updateBotData(Connection con, double[] inStatsArray, double inChatId, boolean inIsAsleep, boolean inIsAlive){
-        String query = "UPDATE bots SET statHunger = ?, statHappiness = ?, statSleepiness = ?, statFitness = ?, isAlive = ?, isAsleep = ? WHERE idBots = ?";
+    public static void updateBotData(Connection con, double[] inStatsArray, double inChatId, boolean inIsAsleep, boolean inIsAlive, int inMessageId){
+        String query = "UPDATE bots SET statHunger = ?, statHappiness = ?, statSleepiness = ?, statFitness = ?, isAlive = ?, isAsleep = ?, lastMessageId = ? WHERE idBots = ?";
         try(PreparedStatement preparedStatement = con.prepareStatement(query)){
             preparedStatement.setDouble(1, inStatsArray[0]);
             preparedStatement.setDouble(2, inStatsArray[1]);
@@ -92,7 +94,9 @@ public class DataHandler {
             preparedStatement.setDouble(4,inStatsArray[3]);
             preparedStatement.setBoolean(5,inIsAlive);
             preparedStatement.setBoolean(6,inIsAsleep);
-            preparedStatement.setDouble(7,inChatId);
+            preparedStatement.setInt(7,inMessageId);
+            preparedStatement.setDouble(8,inChatId);
+            preparedStatement.executeUpdate();
         } catch (SQLException e){
             System.out.println("Unable to connect to database");
             System.err.println(e.getMessage());
